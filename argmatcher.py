@@ -198,6 +198,50 @@ class ArgMatcher:
 
         return responses
 
+
+    def match_text_persentence(self, text, 
+                               N=2, passage_length=5,
+                               threshold=0.5):
+        """
+        Splits input into sentences and then performs similarity scoring
+        Returns:
+        list of sentences which match threshold:
+            (
+                input sentence,
+                similarity score,
+                argument title,
+                best matched sentence in argument + passage_length subsequent sentences
+            )
+        """
+        text = str(text)
+        t = self.nlp(text)
+        input_sentences = [text]
+        input_vector = t.vector
+        input_sentence_vectors = [input_vector]
+        
+        if len([s.text for s in t.sents]) > 2:
+            for s in t.sents:
+                input_sentences.append(s.text)
+                input_sentence_vectors.append(s.vector)
+            
+        input_sentence_vectors = np.array(input_sentence_vectors)
+        sent_cs = cosine_similarity(input_sentence_vectors, self.template_dict['embeds'])
+
+        best_args = np.argmax(sent_cs, axis=1)
+        responses = []
+
+        for i, a in enumerate(best_args):
+            arg = self.template_dict['labels'][a]
+            sim = np.max(sent_cs[i])
+            inp = input_sentences[i]
+            if sim >= threshold:
+                cs_argsent = cosine_similarity(input_vector[np.newaxis,:], self.arg_dict['sentence_embeds'][arg])
+                best_sent = np.argmax(cs_argsent[0])
+                best_passage = ' '.join(self.arg_dict['sentences'][arg][best_sent:best_sent+passage_length])
+                responses.append((inp, sim, self.arg_dict['argument'][arg], best_passage))
+
+        return responses
+
 if __name__ == "__main__":
     nlp = spacy.load('en_core_web_lg')
     nlp.add_pipe('universal_sentence_encoder', config={'model_name':'en_use_lg'})
