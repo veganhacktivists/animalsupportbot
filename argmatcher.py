@@ -138,7 +138,7 @@ class ArgMatcher:
         html = markdown(text)
         soup = bs4.BeautifulSoup(html, features='html.parser')
         only_text = ' '.join(soup.findAll(text=True))
-        only_text = re.sub('\n', '', only_text)
+        only_text = re.sub('\n', ' ', only_text)
         return only_text
 
     def classify_relevant(self, text):

@@ -52,7 +52,11 @@ class MentionsBot:
         self.end_message = "\n *** \n This was an automatically generated response based on the idea(s)/myth(s): \n\n {} \n\n" \
                 "*(Responses taken from vegan advocates like [Earthling Ed](https://www.youtube.com/channel/UCVRrGAcUc7cblUzOhI1KfFg))* \n *** \n" \
                         "**[Vegan Hacktivists](https://veganhacktivists.org/), [Vegan Bootcamp](https://veganbootcamp.org/)**"
-    
+        
+        self.failure_comment = "Sorry, we couldn't quite match up this comment to one of our counter-arguments."
+        self.gform_link = "https://forms.gle/XLSf2SdkTASUvbXYA"
+        self.failure_pm = """Hi, we couldn't find a response to the following comment: \n\n "{}" \n\n Please help us improve /u/animalsupportbot by filling out this form: [Google Forms Survey]({})"""
+
     def clear_already_replied(self):
         """
         Go through mentions manually to tick off if we have already replied
@@ -132,7 +136,7 @@ class MentionsBot:
         for mention in self.inbox.mentions(limit=limit):
             if mention.subreddit.display_name != 'testanimalsupportbot':
                 continue
-            if mention not in self.completed:
+            if mention not in self.completed and mention not in self.missed:
                 if isinstance(mention, Comment):
                     parent = mention.parent()
                     if isinstance(parent, Comment):
@@ -145,9 +149,11 @@ class MentionsBot:
                             self.completed.append(mention)
                             self.append_file(self.completed_file, mention)
                         else:
+                            mention.reply(self.failure_comment)
+                            mention.author.message("We couldn't find a response to the comment!",
+                                                   self.failure_pm.format(self.argmatch.prefilter(parent.body), self.gform_link))
                             self.missed.append(mention)
                             self.append_file(self.missed_file, mention)
-        
     
     def run(self, refresh_rate=600):
         self.clear_already_replied()
