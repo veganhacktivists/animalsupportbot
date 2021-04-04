@@ -145,6 +145,7 @@ class MentionsBot:
                 print('{}\tReplied to mentions, sleeping for {} seconds...'.format(time.ctime(), refresh_rate))
                 time.sleep(refresh_rate)
             except prawcore.exceptions.ServerError:
+                print('Got a ServerError, sleeping for {} seconds before trying again...'.format(timeout_retry))
                 time.sleep(timeout_retry)
 
 
