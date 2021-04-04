@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 import pandas as pd
 import praw
+import prawcore
 import spacy
 from praw.models import Comment
 
@@ -136,12 +137,15 @@ class MentionsBot:
                             self.missed.append(mention)
                             self.append_file(self.missed_file, mention)
     
-    def run(self, refresh_rate=600):
+    def run(self, refresh_rate=600, timeout_retry=600):
         self.clear_already_replied()
         while True:
-            self.reply_mentions_persentence()
-            print('{}\tReplied to mentions, sleeping for {} seconds...'.format(time.ctime(), refresh_rate))
-            time.sleep(refresh_rate)
+            try:
+                self.reply_mentions_persentence()
+                print('{}\tReplied to mentions, sleeping for {} seconds...'.format(time.ctime(), refresh_rate))
+                time.sleep(refresh_rate)
+            except prawcore.exceptions.ServerError:
+                time.sleep(timeout_retry)
 
 
 if __name__ == "__main__":
