@@ -10,6 +10,7 @@ from praw.models import Comment
 
 from argmatcher import ArgMatcher
 from local_info import USER_INFO
+from response_templates import END_TEMPLATE, FAILURE_COMMENT, FAILURE_PM, GFORM_LINK
 
 def read_list(file):
     completed = []
@@ -48,14 +49,10 @@ class MentionsBot:
 
         self.arg_link_dict = load_myth_links('./knowledge/vegan_myths.csv')
 
-        self.response_template = '{} \n This was an automatically generated response that I matched to the idea that "{}"'
-        self.end_message = "\n *** \n This was an automatically generated response based on the idea(s)/myth(s): \n\n {} \n\n" \
-                "*(Responses taken from vegan advocates like [Earthling Ed](https://www.youtube.com/channel/UCVRrGAcUc7cblUzOhI1KfFg))* \n *** \n" \
-                        "**[Vegan Hacktivists](https://veganhacktivists.org/), [Vegan Bootcamp](https://veganbootcamp.org/)**"
-        
-        self.failure_comment = "Sorry, we couldn't quite match up this comment to one of our counter-arguments."
-        self.gform_link = "https://forms.gle/XLSf2SdkTASUvbXYA"
-        self.failure_pm = """Hi, we couldn't find a response to the following comment: \n\n "{}" \n\n Please help us improve /u/animalsupportbot by filling out this form: [Google Forms Survey]({})"""
+        self.end_template = END_TEMPLATE
+        self.failure_comment = FAILURE_COMMENT
+        self.gform_link = GFORM_LINK
+        self.failure_pm = FAILURE_PM
 
     def clear_already_replied(self):
         """
@@ -108,25 +105,9 @@ class MentionsBot:
             else:
                 arglist.append('({}): {}'.format(self.alphabet[i], arg))
         
-        parts.append(self.end_message.format(', '.join(arglist)))
+        parts.append(self.end_template.format(', '.join(arglist)))
         return '\n'.join(parts)
         
-
-    def reply_mentions(self, limit=25):
-        """
-        Main functionality. Go through mentions and reply to parent comments
-        """
-        for mention in self.inbox.mentions(limit=limit):
-            if mention not in self.completed:
-                if isinstance(mention, Comment):
-                    parent = mention.parent()
-                    if isinstance(parent, Comment):
-                        comment_text = parent.body
-                        resp = self.argmatch.match_text(comment_text, N=1)[0]
-                        response_text = resp[3]
-                        parent.reply(self.response_template.format(response_text, resp[0]))
-                        self.completed.append(mention)
-                        self.append_file(self.completed_file, mention)
 
     def reply_mentions_persentence(self, limit=None):
         """
