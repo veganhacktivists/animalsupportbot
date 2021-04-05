@@ -1,14 +1,16 @@
 import os
 import pickle
+import re
 from collections import OrderedDict
+from markdown import markdown
 
+import bs4
 import numpy as np
 import pandas as pd
 import spacy
 import spacy_universal_sentence_encoder
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from tqdm import tqdm
-
 
 class ArgMatcher:
 
@@ -115,7 +117,7 @@ class ArgMatcher:
 
     @staticmethod
     def load_myths(file):
-        df = pd.read_csv(file, names=['argument', 'text'])
+        df = pd.read_csv(file, names=['argument', 'text', 'link'])
         return OrderedDict({k:v for k,v in zip(df['argument'].values, 
                                                df['text'].values)})
         
@@ -131,9 +133,13 @@ class ArgMatcher:
     def prefilter(self, text):
         """
         prefilter text:
-            e.g. stop extremely long inputs etc.
+            e.g. strip markdown and characters that mess up formatting
         """
-        pass
+        html = markdown(text)
+        soup = bs4.BeautifulSoup(html, features='html.parser')
+        only_text = ' '.join(soup.findAll(text=True))
+        only_text = re.sub('\n', ' ', only_text)
+        return only_text
 
     def classify_relevant(self, text):
         """
@@ -176,7 +182,7 @@ class ArgMatcher:
                 matched template text
             )
         """
-        text = str(text)
+        text = str(self.prefilter(text))
         input_vector = self.nlp(text).vector[np.newaxis,:]
 
         cs = cosine_similarity(input_vector, self.template_dict['embeds'])[0]
@@ -198,13 +204,56 @@ class ArgMatcher:
 
         return responses
 
+
+    def match_text_persentence(self, text, 
+                               passage_length=5,
+                               threshold=0.5):
+        """
+        Splits input into sentences and then performs similarity scoring
+        Returns:
+        list of sentences which match threshold:
+            (
+                input sentence,
+                similarity score,
+                argument title,
+                best matched sentence in argument + passage_length subsequent sentences
+            )
+        """
+        text = str(self.prefilter(text))
+        t = self.nlp(text)
+        input_sentences = []
+        input_vector = t.vector
+        input_sentence_vectors = []
+        
+        if len([s.text for s in t.sents]) > 2:
+            for s in t.sents:
+                input_sentences.append(s.text)
+                input_sentence_vectors.append(s.vector)
+        else:
+            input_sentences.append(text)
+            input_sentence_vectors.append(input_vector)
+            
+        input_sentence_vectors = np.array(input_sentence_vectors)
+        sent_cs = cosine_similarity(input_sentence_vectors, self.template_dict['embeds'])
+
+        best_args = np.argmax(sent_cs, axis=1)
+        responses = []
+
+        for i, a in enumerate(best_args):
+            arg = self.template_dict['labels'][a]
+            sim = np.max(sent_cs[i])
+            inp = input_sentences[i]
+            if sim >= threshold:
+                cs_argsent = cosine_similarity(input_vector[np.newaxis,:], self.arg_dict['sentence_embeds'][arg])
+                best_sent = np.argmax(cs_argsent[0])
+                best_passage = ' '.join(self.arg_dict['sentences'][arg][best_sent:best_sent+passage_length])
+                responses.append((inp, sim, self.arg_dict['argument'][arg], best_passage))
+
+        return responses
+
 if __name__ == "__main__":
     nlp = spacy.load('en_core_web_lg')
     nlp.add_pipe('universal_sentence_encoder', config={'model_name':'en_use_lg'})
-    
-    # Have some data in gists:
-    # wget -q https://gist.githubusercontent.com/cvqluu/8d7c1f0a28cdc3510af7ae2ae630aafa/raw/5bbb4483c2fd963d8971cb1fdab62340386194b9/vegan_myths_examples.csv -O ./vegan_myths_examples.csv
-    # wget -q https://gist.githubusercontent.com/cvqluu/e1844c0480aaceecec90637ff9ee7f62/raw/6f42ac80353087647ae2f13d7a7e37d8e2f66d69/vegan_myths.csv -O ./vegan_myths.csv
 
-    argm = ArgMatcher(nlp, './vegan_myths.csv', './vegan_myths_examples.csv', preload=False)
+    argm = ArgMatcher(nlp, './knowledge/vegan_myths.csv', './knowledge/vegan_myths_examples.csv', preload=False)
     print('Finished populating embed dicts, saved to preload_dicts')

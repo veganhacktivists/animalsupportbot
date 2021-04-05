@@ -1,0 +1,5 @@
+local_info.py
+completed.csv
+missed.csv
+preload_dicts/*
+__pycache__/*
