@@ -21,9 +21,9 @@ def read_list(file):
     return completed
 
 def load_myth_links(file):
-    df = pd.read_csv(file, names=['argument', 'text', 'link'])
-    return OrderedDict({k:v for k,v in zip(df['argument'].values, 
-                                           df['link'].values) if v})
+    df = pd.read_csv(file)
+    return OrderedDict({k:v for k,v in zip(df['Title'].values, 
+                                           df['Link'].values) if v})
 
 class MentionsBot:
 
@@ -49,7 +49,7 @@ class MentionsBot:
 
         self.alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
-        self.arg_link_dict = load_myth_links('./knowledge/vegan_myths.csv')
+        self.arg_link_dict = load_myth_links('./knowledge/myths.csv')
 
         self.end_template = END_TEMPLATE
         self.failure_comment = FAILURE_COMMENT
