@@ -35,6 +35,7 @@ class MentionsBot:
         self.inbox = praw.models.Inbox(self.reddit, _data={})
         self.argmatch = argmatch
         self.threshold = threshold
+        self.blacklisted_subreddits = set(['suicidewatch', 'depression'])
 
         self.completed = []
         self.completed_file = './completed.csv'
@@ -116,26 +117,51 @@ class MentionsBot:
         Uses persentence argmatcher
         """
         for mention in self.inbox.mentions(limit=limit):
-            if mention.subreddit.display_name != 'testanimalsupportbot':
+            # Temporary restriction on only replying in test subreddit
+            if mention.subreddit.display_name.lower() != 'testanimalsupportbot':
                 continue
+
+            # Skip mention if included in blacklisted subreddits
+            if mention.subreddit.display_name.lower() in self.blacklisted_subreddits:
+                self.completed.append(mention)
+                self.append_file(self.completed_file, mention)
+                continue
+
+            # Proceed if mention has not been dealt with
             if mention not in self.completed and mention not in self.missed:
                 if isinstance(mention, Comment):
                     parent = mention.parent()
                     if isinstance(parent, Comment):
+
+                        # Check if parent has been handled (in case of multiple mentions)
+                        if parent in self.completed or parent in self.missed:
+                            self.completed.append(mention)
+                            self.append_file(self.completed_file, mention)
+                            continue
+
                         comment_text = parent.body
                         resps = self.argmatch.match_text_persentence(comment_text, threshold=self.threshold)
+
                         if resps:
                             formatted_response = self.format_response_persentence(resps)
                             parent.reply(formatted_response)
                             print(formatted_response)
+
+                            # Add both the mention and the parent to the completed list
                             self.completed.append(mention)
                             self.append_file(self.completed_file, mention)
+                            self.completed.append(parent)
+                            self.append_file(self.completed_file, parent)
                         else:
                             mention.reply(self.failure_comment)
                             mention.author.message("We couldn't find a response to the comment!",
                                                    self.failure_pm.format(self.argmatch.prefilter(parent.body), self.gform_link))
+
+                            # Add both the mention and the parent to the completed list
                             self.missed.append(mention)
                             self.append_file(self.missed_file, mention)
+                            self.missed.append(parent)
+                            self.append_file(self.missed_file, parent)
     
     def run(self, refresh_rate=600, timeout_retry=600):
         self.clear_already_replied()
