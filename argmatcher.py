@@ -12,11 +12,14 @@ import spacy_universal_sentence_encoder
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from tqdm import tqdm
 
+from update_knowledge import arg_dict_from_df, read_eg_df 
+
+
 class ArgMatcher:
 
-    def __init__(self, 
-                 nlp, 
-                 myths_csv, 
+    def __init__(self,
+                 nlp,
+                 myths_csv,
                  myth_examples_csv,
                  preload=False,
                  preload_dir='./preload_dicts'
@@ -33,17 +36,18 @@ class ArgMatcher:
         else:
             arg_dict_path = os.path.join(preload_dir, 'arg_dict.p')
             template_dict_path = os.path.join(preload_dir, 'template_dict.p')
-            assert os.path.isfile(arg_dict_path), "Couldn't find {}".format(arg_dict_path)
-            assert os.path.isfile(template_dict_path), "Couldn't find {}".format(template_dict_path)
+            assert os.path.isfile(
+                arg_dict_path), "Couldn't find {}".format(arg_dict_path)
+            assert os.path.isfile(template_dict_path), "Couldn't find {}".format(
+                template_dict_path)
 
             self.arg_dict = pickle.load(open(arg_dict_path, "rb"))
             self.template_dict = pickle.load(open(template_dict_path, "rb"))
 
-
     def setup(self):
         self.arg_examples = self.load_myth_examples(self.myth_examples_csv)
         self.arg_text_dict = self.load_myths(self.myths_csv)
-        self.arg_dict, self.template_dict  = self.populate_embed_dicts()
+        self.arg_dict, self.template_dict = self.populate_embed_dicts()
         return self.arg_dict, self.template_dict
 
     def populate_embed_dicts(self):
@@ -72,7 +76,7 @@ class ArgMatcher:
         # Getting per sentence embeddings
         arg_s_embeds = []
         arg_sentences = []
-        for a, arg in tqdm(enumerate(self.arg_dict['argument'])):
+        for a, arg in enumerate(tqdm(self.arg_dict['argument'])):
             sentence_embeds = []
             sentence_texts = []
             for sent in self.nlp(str(self.arg_dict['text'][a])).sents:
@@ -103,7 +107,7 @@ class ArgMatcher:
                 template_embeds.append(self.nlp(text).vector)
                 template_text.append(text)
                 template_labels.append(i)
-        
+
         self.template_dict = OrderedDict({})
         self.template_dict['embeds'] = np.array(template_embeds)
         self.template_dict['labels'] = np.array(template_labels)
@@ -111,23 +115,22 @@ class ArgMatcher:
 
         # writing dicts to pickle
         os.makedirs(self.preload_dir, exist_ok=True)
-        pickle.dump(self.arg_dict, open(os.path.join(self.preload_dir, 'arg_dict.p'), "wb"))
-        pickle.dump(self.template_dict, open(os.path.join(self.preload_dir, 'template_dict.p'), "wb"))
-        return self.arg_dict, self.template_dict 
+        pickle.dump(self.arg_dict, open(os.path.join(
+            self.preload_dir, 'arg_dict.p'), "wb"))
+        pickle.dump(self.template_dict, open(os.path.join(
+            self.preload_dir, 'template_dict.p'), "wb"))
+        return self.arg_dict, self.template_dict
 
     @staticmethod
     def load_myths(file):
-        df = pd.read_csv(file, names=['argument', 'text', 'link'])
-        return OrderedDict({k:v for k,v in zip(df['argument'].values, 
-                                               df['text'].values)})
-        
+        df = pd.read_csv(file)
+        return OrderedDict({k: v for k, v in zip(df['Title'].values,
+                                                 df['Text'].values)})
+
     @staticmethod
     def load_myth_examples(file):
-        arg_examples = OrderedDict({})
-        with open(file) as fp:
-            for line in fp:
-                splitup = line.strip().split(',')
-                arg_examples[splitup[0]] =  [s for s in splitup[1:] if s]
+        egs_df = read_eg_df(file)
+        arg_examples = arg_dict_from_df(egs_df)
         return arg_examples
 
     def prefilter(self, text):
@@ -153,7 +156,7 @@ class ArgMatcher:
     def classify_response(self, text):
         """
         Classifiers whether a user response is agreeing or disagreeing
-        
+
         input: text
         output: True/False
         """
@@ -183,29 +186,30 @@ class ArgMatcher:
             )
         """
         text = str(self.prefilter(text))
-        input_vector = self.nlp(text).vector[np.newaxis,:]
+        input_vector = self.nlp(text).vector[np.newaxis, :]
 
         cs = cosine_similarity(input_vector, self.template_dict['embeds'])[0]
         best_args = np.argsort(cs)[::-1]
-        
+
         responses = []
 
         for i in range(N):
             best_arg = self.template_dict['labels'][best_args[i]]
             sentence_embeds = self.arg_dict['sentence_embeds'][best_arg]
-            
+
             cs_sent = cosine_similarity(input_vector, sentence_embeds)
             best_sents = np.argsort(cs_sent[0])[::-1]
             best_sent = best_sents[0]
 
             best_sentences = self.arg_dict['sentences'][best_arg][best_sents]
-            best_passage = ' '.join(self.arg_dict['sentences'][best_arg][best_sent:best_sent+passage_length])
-            responses.append((self.arg_dict['argument'][best_arg], self.template_dict['text'][best_args[i]], np.max(cs), best_passage, np.max(cs_sent)))
+            best_passage = ' '.join(
+                self.arg_dict['sentences'][best_arg][best_sent:best_sent+passage_length])
+            responses.append((self.arg_dict['argument'][best_arg], self.template_dict['text'][best_args[i]], np.max(
+                cs), best_passage, np.max(cs_sent)))
 
         return responses
 
-
-    def match_text_persentence(self, text, 
+    def match_text_persentence(self, text,
                                passage_length=5,
                                threshold=0.5):
         """
@@ -224,7 +228,7 @@ class ArgMatcher:
         input_sentences = []
         input_vector = t.vector
         input_sentence_vectors = []
-        
+
         if len([s.text for s in t.sents]) > 2:
             for s in t.sents:
                 input_sentences.append(s.text)
@@ -232,9 +236,10 @@ class ArgMatcher:
         else:
             input_sentences.append(text)
             input_sentence_vectors.append(input_vector)
-            
+
         input_sentence_vectors = np.array(input_sentence_vectors)
-        sent_cs = cosine_similarity(input_sentence_vectors, self.template_dict['embeds'])
+        sent_cs = cosine_similarity(
+            input_sentence_vectors, self.template_dict['embeds'])
 
         best_args = np.argmax(sent_cs, axis=1)
         responses = []
@@ -244,16 +249,22 @@ class ArgMatcher:
             sim = np.max(sent_cs[i])
             inp = input_sentences[i]
             if sim >= threshold:
-                cs_argsent = cosine_similarity(input_vector[np.newaxis,:], self.arg_dict['sentence_embeds'][arg])
+                cs_argsent = cosine_similarity(
+                    input_vector[np.newaxis, :], self.arg_dict['sentence_embeds'][arg])
                 best_sent = np.argmax(cs_argsent[0])
-                best_passage = ' '.join(self.arg_dict['sentences'][arg][best_sent:best_sent+passage_length])
-                responses.append((inp, sim, self.arg_dict['argument'][arg], best_passage))
+                best_passage = ' '.join(
+                    self.arg_dict['sentences'][arg][best_sent:best_sent+passage_length])
+                responses.append(
+                    (inp, sim, self.arg_dict['argument'][arg], best_passage))
 
         return responses
 
+
 if __name__ == "__main__":
     nlp = spacy.load('en_core_web_lg')
-    nlp.add_pipe('universal_sentence_encoder', config={'model_name':'en_use_lg'})
+    nlp.add_pipe('universal_sentence_encoder',
+                 config={'model_name': 'en_use_lg'})
 
-    argm = ArgMatcher(nlp, './knowledge/vegan_myths.csv', './knowledge/vegan_myths_examples.csv', preload=False)
+    argm = ArgMatcher(nlp, './knowledge/myths.csv',
+                      './knowledge/myths_egs.csv', preload=False)
     print('Finished populating embed dicts, saved to preload_dicts')
