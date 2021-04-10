@@ -3,3 +3,6 @@ completed.csv
 missed.csv
 preload_dicts/*
 __pycache__/*
+gdrive-keyfile.json
+knowledge/*
+!knowledge/.gitignore
