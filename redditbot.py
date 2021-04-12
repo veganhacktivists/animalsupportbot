@@ -7,7 +7,7 @@ import pandas as pd
 import praw
 import prawcore
 import spacy
-from praw.models import Comment
+from praw.models import Comment, Submission
 
 from argmatcher import ArgMatcher
 from local_info import USER_INFO
@@ -131,38 +131,46 @@ class MentionsBot:
             if mention not in self.completed and mention not in self.missed:
                 if isinstance(mention, Comment):
                     parent = mention.parent()
+
+                    # Check if parent has been handled (in case of multiple mentions)
+                    if parent in self.completed or parent in self.missed:
+                        self.completed.append(mention)
+                        self.append_file(self.completed_file, mention)
+                        continue
+
                     if isinstance(parent, Comment):
-
-                        # Check if parent has been handled (in case of multiple mentions)
-                        if parent in self.completed or parent in self.missed:
-                            self.completed.append(mention)
-                            self.append_file(self.completed_file, mention)
-                            continue
-
                         comment_text = parent.body
+                    elif isinstance(parent, Submission):
+                        comment_text = parent.selftext
+                    else:
+                        comment_text = None
+
+                    if comment_text:
                         resps = self.argmatch.match_text_persentence(comment_text, threshold=self.threshold)
+                    else:
+                        resps = []
 
-                        if resps:
-                            formatted_response = self.format_response_persentence(resps)
-                            parent.reply(formatted_response)
-                            print(formatted_response)
+                    if resps:
+                        formatted_response = self.format_response_persentence(resps)
+                        parent.reply(formatted_response)
+                        print(formatted_response)
 
-                            # Add both the mention and the parent to the completed list
-                            self.completed.append(mention)
-                            self.append_file(self.completed_file, mention)
-                            self.completed.append(parent)
-                            self.append_file(self.completed_file, parent)
-                        else:
-                            mention.reply(self.failure_comment)
-                            mention.author.message("We couldn't find a response to the comment!",
-                                                   self.failure_pm.format(self.argmatch.prefilter(parent.body), self.gform_link))
+                        # Add both the mention and the parent to the completed list
+                        self.completed.append(mention)
+                        self.append_file(self.completed_file, mention)
+                        self.completed.append(parent)
+                        self.append_file(self.completed_file, parent)
+                    else:
+                        mention.reply(self.failure_comment)
+                        mention.author.message("We couldn't find a response!",
+                                               self.failure_pm.format(self.argmatch.prefilter(parent.body), self.gform_link))
 
-                            # Add both the mention and the parent to the completed list
-                            self.missed.append(mention)
-                            self.append_file(self.missed_file, mention)
-                            self.missed.append(parent)
-                            self.append_file(self.missed_file, parent)
-    
+                        # Add both the mention and the parent to the completed list
+                        self.missed.append(mention)
+                        self.append_file(self.missed_file, mention)
+                        self.missed.append(parent)
+                        self.append_file(self.missed_file, parent)
+
     def run(self, refresh_rate=600, timeout_retry=600):
         self.clear_already_replied()
         while True:
