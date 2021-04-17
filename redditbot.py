@@ -138,11 +138,14 @@ class MentionsBot:
                         self.append_file(self.completed_file, mention)
                         continue
 
-                    if isinstance(parent, Comment):
-                        comment_text = parent.body
-                    elif isinstance(parent, Submission):
-                        comment_text = parent.selftext
-                    else:
+                    try:
+                        if isinstance(parent, Comment):
+                            comment_text = parent.body
+                        elif isinstance(parent, Submission):
+                            comment_text = parent.selftext
+                        else:
+                            comment_text = None
+                    except:
                         comment_text = None
 
                     if comment_text:
@@ -162,8 +165,12 @@ class MentionsBot:
                         self.append_file(self.completed_file, parent)
                     else:
                         mention.reply(self.failure_comment)
-                        mention.author.message("We couldn't find a response!",
+                        try:
+                            mention.author.message("We couldn't find a response!",
                                                self.failure_pm.format(self.argmatch.prefilter(parent.body), self.gform_link))
+                        except:
+                            # PM-ing people sometimes fails, but this is not critical
+                            pass
 
                         # Add both the mention and the parent to the completed list
                         self.missed.append(mention)
