@@ -24,7 +24,7 @@ h5py==2.10.0
 httplib2==0.19.1
 idna==2.10
 immutables==0.15
-importlib-metadata==4.0.1
+importlib-metadata==3.4.0
 Jinja2==2.11.3
 joblib==1.0.1
 Keras-Preprocessing==1.1.2
