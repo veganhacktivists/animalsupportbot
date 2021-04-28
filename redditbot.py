@@ -84,7 +84,8 @@ class MentionsBot:
         """
         args = OrderedDict({})
         for r in resps:
-            inp, sim, arg, passage = r
+            inp, info, arg, passage = r
+            sim = info['sim']
             if arg not in args:
                 args[arg] = {'passage':passage, 'quotes':[inp], 'sim':sim}
             else:
