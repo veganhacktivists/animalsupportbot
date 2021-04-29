@@ -119,7 +119,7 @@ class MentionsBot:
 
         for i, arg in enumerate(args):
             quotes = ''.join(['>{} \n\n'.format(q)
-                             for q in args[arg]['quotes']]) '^(({})^)'.format(self.alphabet[i])
+                              for q in args[arg]['quotes']]) + '> ^(({})^) \n\n'.format(self.alphabet[i])
             passage = args[arg]['passage'] + '\n'
             parts.append(quotes)
             parts.append(passage)
