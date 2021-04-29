@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import time
@@ -13,6 +14,18 @@ from argmatcher import ArgMatcher
 from local_info import USER_INFO
 from response_templates import (END_TEMPLATE, FAILURE_COMMENT, FAILURE_PM,
                                 GFORM_LINK)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--threshold", help="Minimum similarity threshold that has to be met to match an argument (float: between 0 and 1)",
+                        type=float, default=0.6)
+    parser.add_argument(
+        "--refresh-rate", help="Refresh rate in seconds to check for mentions", type=int, default=60)
+    parser.add_argument(
+        "--n-neighbors", help="Number of neighbors to consider when doing a weighted vote for classification", type=int, default=1)
+    args = parser.parse_args()
+    return args
 
 
 def read_list(file):
@@ -31,7 +44,7 @@ def load_myth_links(file):
 
 class MentionsBot:
 
-    def __init__(self, argmatch, user_info, threshold=0.5):
+    def __init__(self, argmatch, user_info, threshold=0.6, n_neighbors=1):
         self.reddit = praw.Reddit(
             check_for_async=False,
             **user_info
@@ -39,6 +52,7 @@ class MentionsBot:
         self.inbox = praw.models.Inbox(self.reddit, _data={})
         self.argmatch = argmatch
         self.threshold = threshold
+        self.n_neighbors = n_neighbors
         self.blacklisted_subreddits = set(['suicidewatch', 'depression'])
 
         self.completed = []
@@ -55,10 +69,10 @@ class MentionsBot:
 
         self.arg_link_dict = load_myth_links('./knowledge/myths.csv')
 
-        self.end_template = END_TEMPLATE
-        self.failure_comment = FAILURE_COMMENT
-        self.gform_link = GFORM_LINK
-        self.failure_pm = FAILURE_PM
+        self.END_TEMPLATE = END_TEMPLATE
+        self.FAILURE_COMMENT = FAILURE_COMMENT
+        self.GFORM_LINK = GFORM_LINK
+        self.FAILURE_PM = FAILURE_PM
 
     def clear_already_replied(self):
         """
@@ -114,7 +128,7 @@ class MentionsBot:
             else:
                 arglist.append('({}): {}'.format(self.alphabet[i], arg))
 
-        parts.append(self.end_template.format(', '.join(arglist)))
+        parts.append(self.END_TEMPLATE.format(', '.join(arglist)))
         return '\n'.join(parts)
 
     def reply_mentions_persentence(self, limit=None):
@@ -156,7 +170,7 @@ class MentionsBot:
 
                     if comment_text:
                         resps = self.argmatch.match_text_persentence(
-                            comment_text, threshold=self.threshold)
+                            comment_text, threshold=self.threshold, N_neighbors=self.n_neighbors)
                     else:
                         resps = []
 
@@ -172,10 +186,10 @@ class MentionsBot:
                         self.completed.append(parent)
                         self.append_file(self.completed_file, parent)
                     else:
-                        mention.reply(self.failure_comment)
+                        mention.reply(self.FAILURE_COMMENT)
                         try:
                             mention.author.message("We couldn't find a response!",
-                                                   self.failure_pm.format(self.argmatch.prefilter(parent.body), self.gform_link))
+                                                   self.FAILURE_PM.format(self.argmatch.prefilter(parent.body), self.GFORM_LINK))
                         except:
                             # PM-ing people sometimes fails, but this is not critical
                             pass
@@ -201,13 +215,13 @@ class MentionsBot:
 
 
 if __name__ == "__main__":
-    refresh_rate = int(sys.argv[1])
-    threshold = float(sys.argv[2])
+    args = parse_args()
     nlp = spacy.load('en_core_web_lg')
     nlp.add_pipe('universal_sentence_encoder',
                  config={'model_name': 'en_use_lg'})
 
     argm = ArgMatcher(nlp, None, None, preload=True)
-    mb = MentionsBot(argm, USER_INFO, threshold=threshold)
+    mb = MentionsBot(argm, USER_INFO, threshold=args.threshold,
+                     n_neighbors=args.n_neighbors)
 
-    mb.run(refresh_rate=refresh_rate)
+    mb.run(refresh_rate=args.refresh_rate)
