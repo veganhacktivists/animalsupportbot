@@ -39,6 +39,7 @@ def read_list(file):
 
 def load_myth_links(file):
     df = pd.read_csv(file)
+    df = df.fillna('')
     return OrderedDict({k: v for k, v in zip(df['Title'].values,
                                              df['Link'].values) if v})
 
@@ -118,9 +119,8 @@ class MentionsBot:
 
         for i, arg in enumerate(args):
             quotes = ''.join(['>{} \n\n'.format(q)
-                             for q in args[arg]['quotes']])
-            passage = args[arg]['passage'] + \
-                '^(({})^)'.format(self.alphabet[i]) + '\n'
+                             for q in args[arg]['quotes']]) '^(({})^)'.format(self.alphabet[i])
+            passage = args[arg]['passage'] + '\n'
             parts.append(quotes)
             parts.append(passage)
             if arg in self.arg_link_dict:
