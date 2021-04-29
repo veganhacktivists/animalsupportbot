@@ -1,5 +1,6 @@
 import argparse
 import os
+import string
 import sys
 import time
 from collections import OrderedDict
@@ -65,7 +66,7 @@ class MentionsBot:
         if os.path.isfile(self.missed_file):
             self.missed = read_list(self.missed_file)
 
-        self.alphabet = 'abcdefghijklmnopqrstuvwxyz'
+        self.alphabet = string.ascii_letters
 
         self.arg_link_dict = load_myth_links('./knowledge/myths.csv')
 
