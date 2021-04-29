@@ -1,6 +1,6 @@
 import os
-import time
 import sys
+import time
 from collections import OrderedDict
 
 import pandas as pd
@@ -11,7 +11,9 @@ from praw.models import Comment, Submission
 
 from argmatcher import ArgMatcher
 from local_info import USER_INFO
-from response_templates import END_TEMPLATE, FAILURE_COMMENT, FAILURE_PM, GFORM_LINK
+from response_templates import (END_TEMPLATE, FAILURE_COMMENT, FAILURE_PM,
+                                GFORM_LINK)
+
 
 def read_list(file):
     completed = []
@@ -20,18 +22,20 @@ def read_list(file):
             completed.append(line.strip())
     return completed
 
+
 def load_myth_links(file):
     df = pd.read_csv(file)
-    return OrderedDict({k:v for k,v in zip(df['Title'].values, 
-                                           df['Link'].values) if v})
+    return OrderedDict({k: v for k, v in zip(df['Title'].values,
+                                             df['Link'].values) if v})
+
 
 class MentionsBot:
 
     def __init__(self, argmatch, user_info, threshold=0.5):
         self.reddit = praw.Reddit(
-                    check_for_async=False,
-                    **user_info
-                )
+            check_for_async=False,
+            **user_info
+        )
         self.inbox = praw.models.Inbox(self.reddit, _data={})
         self.argmatch = argmatch
         self.threshold = threshold
@@ -77,7 +81,6 @@ class MentionsBot:
             line = '{}\n'.format(comment_id)
             wp.write(line)
 
-
     def format_response_persentence(self, resps):
         """
         Formatting responses given from the argument matcher
@@ -87,30 +90,32 @@ class MentionsBot:
             inp, info, arg, passage = r
             sim = info['sim']
             if arg not in args:
-                args[arg] = {'passage':passage, 'quotes':[inp], 'sim':sim}
+                args[arg] = {'passage': passage, 'quotes': [inp], 'sim': sim}
             else:
                 args[arg]['quotes'].append(inp)
                 if args[arg]['sim'] < sim:
-                    #replace the passage if this sentence is better matched
+                    # replace the passage if this sentence is better matched
                     args[arg]['sim'] = sim
                     args[arg]['passage'] = passage
-        
+
         parts = []
         arglist = []
-        
+
         for i, arg in enumerate(args):
-            quotes = ''.join(['>{} \n\n'.format(q) for q in args[arg]['quotes']])
-            passage = args[arg]['passage'] + '^(({})^)'.format(self.alphabet[i]) + '\n'
+            quotes = ''.join(['>{} \n\n'.format(q)
+                             for q in args[arg]['quotes']])
+            passage = args[arg]['passage'] + \
+                '^(({})^)'.format(self.alphabet[i]) + '\n'
             parts.append(quotes)
             parts.append(passage)
             if arg in self.arg_link_dict:
-                arglist.append('[({}): {}]({})'.format(self.alphabet[i], arg, self.arg_link_dict[arg]))
+                arglist.append('[({}): {}]({})'.format(
+                    self.alphabet[i], arg, self.arg_link_dict[arg]))
             else:
                 arglist.append('({}): {}'.format(self.alphabet[i], arg))
-        
+
         parts.append(self.end_template.format(', '.join(arglist)))
         return '\n'.join(parts)
-        
 
     def reply_mentions_persentence(self, limit=None):
         """
@@ -150,12 +155,14 @@ class MentionsBot:
                         comment_text = None
 
                     if comment_text:
-                        resps = self.argmatch.match_text_persentence(comment_text, threshold=self.threshold)
+                        resps = self.argmatch.match_text_persentence(
+                            comment_text, threshold=self.threshold)
                     else:
                         resps = []
 
                     if resps:
-                        formatted_response = self.format_response_persentence(resps)
+                        formatted_response = self.format_response_persentence(
+                            resps)
                         parent.reply(formatted_response)
                         print(formatted_response)
 
@@ -168,7 +175,7 @@ class MentionsBot:
                         mention.reply(self.failure_comment)
                         try:
                             mention.author.message("We couldn't find a response!",
-                                               self.failure_pm.format(self.argmatch.prefilter(parent.body), self.gform_link))
+                                                   self.failure_pm.format(self.argmatch.prefilter(parent.body), self.gform_link))
                         except:
                             # PM-ing people sometimes fails, but this is not critical
                             pass
@@ -184,10 +191,12 @@ class MentionsBot:
         while True:
             try:
                 self.reply_mentions_persentence()
-                print('{}\tReplied to mentions, sleeping for {} seconds...'.format(time.ctime(), refresh_rate))
+                print('{}\tReplied to mentions, sleeping for {} seconds...'.format(
+                    time.ctime(), refresh_rate))
                 time.sleep(refresh_rate)
             except prawcore.exceptions.ServerError or prawcore.exceptions.ResponseException:
-                print('Got a ServerError, sleeping for {} seconds before trying again...'.format(timeout_retry))
+                print('Got a ServerError, sleeping for {} seconds before trying again...'.format(
+                    timeout_retry))
                 time.sleep(timeout_retry)
 
 
@@ -195,12 +204,10 @@ if __name__ == "__main__":
     refresh_rate = int(sys.argv[1])
     threshold = float(sys.argv[2])
     nlp = spacy.load('en_core_web_lg')
-    nlp.add_pipe('universal_sentence_encoder', config={'model_name':'en_use_lg'})
+    nlp.add_pipe('universal_sentence_encoder',
+                 config={'model_name': 'en_use_lg'})
 
     argm = ArgMatcher(nlp, None, None, preload=True)
     mb = MentionsBot(argm, USER_INFO, threshold=threshold)
 
     mb.run(refresh_rate=refresh_rate)
-
-
-
