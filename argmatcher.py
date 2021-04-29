@@ -53,6 +53,8 @@ class ArgMatcher:
             self.arg_dict = pickle.load(open(arg_dict_path, "rb"))
             self.template_dict = pickle.load(open(template_dict_path, "rb"))
 
+        self.eye = np.eye(len(self.arg_dict['argument']) + 1)
+
     def setup(self):
         self.arg_examples = self.load_myth_examples(self.myth_examples_csv)
         self.arg_text_df = self.load_myths(self.myths_csv)
@@ -171,14 +173,15 @@ class ArgMatcher:
 
     def match_text_persentence(self, text,
                                passage_length=5,
-                               threshold=0.5):
+                               threshold=0.5,
+                               N_neighbors=1):
         """
         Splits input into sentences and then performs similarity scoring
         Returns:
         list of sentences which match threshold:
             (
                 input sentence,
-                similarity score,
+                info: {similarity, matched_template},
                 argument title,
                 best matched sentence in argument + passage_length subsequent sentences
             )
@@ -200,14 +203,24 @@ class ArgMatcher:
         input_sentence_vectors = np.array(input_sentence_vectors)
         sent_cs = cosine_similarity(
             input_sentence_vectors, self.template_dict['embeds'])
+        # sent_cs has dimensions (num_sentences, num_templates)
 
-        best_args = np.argmax(sent_cs, axis=1)
+        # Weighted Vote Nearest Neighbour
+        best_cs_args = np.argsort(-1 * sent_cs, axis=1)[:, :N_neighbors]
+        best_cs_labels = self.template_dict['labels'][best_cs_args]
+        best_cs_labels_oh = self.eye[best_cs_labels] #onehot
+        best_cs = sent_cs[np.expand_dims(np.arange(sent_cs.shape[0]), -1), best_cs_args]
+
+        weighted_vote = np.expand_dims(best_cs, -1) * best_cs_labels_oh
+        weighted_vote = np.argmax(np.sum(weighted_vote, axis=1), -1)
+
         responses = []
 
-        for i, a in enumerate(best_args):
-            arg = self.template_dict['labels'][a]
+        for i, arg in enumerate(weighted_vote):
             sim = np.max(sent_cs[i])
+            a = np.argmax(sent_cs[i])
             inp = input_sentences[i]
+
             if sim >= threshold:
                 if not self.arg_dict['full_comment'][arg]:
                     cs_argsent = cosine_similarity(
@@ -241,4 +254,5 @@ if __name__ == "__main__":
         argm = ArgMatcher(nlp, None, None, preload=True)
         while True:
             test_input = input("Enter test sentence: ")
-            print(argm.match_text_persentence(test_input))
+            num_n = int(input("Num neighbours with vote: "))
+            print(argm.match_text_persentence(test_input, N_neighbors=num_n))
