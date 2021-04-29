@@ -11,6 +11,7 @@ import spacy
 import spacy_universal_sentence_encoder
 from markdown import markdown
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
+from sklearn.neighbors import KNeighborsClassifier
 from tqdm import tqdm
 
 from update_knowledge import arg_dict_from_df, read_eg_df
@@ -30,6 +31,7 @@ class ArgMatcher:
                  nlp,
                  myths_csv,
                  myth_examples_csv,
+                 n_neighbors=1,
                  preload=False,
                  preload_dir='./preload_dicts'
                  ):
@@ -37,6 +39,7 @@ class ArgMatcher:
         self.myths_csv = myths_csv
         self.myth_examples_csv = myth_examples_csv
 
+        self.n_neighbors = n_neighbors
         self.preload = preload
         self.preload_dir = preload_dir
 
@@ -54,6 +57,9 @@ class ArgMatcher:
             self.template_dict = pickle.load(open(template_dict_path, "rb"))
 
         self.eye = np.eye(len(self.arg_dict['argument']) + 1)
+        self.clf = KNeighborsClassifier(
+            n_neighbors=self.n_neighbors, weights='distance', metric='cosine')
+        self.fit_classifier()
 
     def setup(self):
         self.arg_examples = self.load_myth_examples(self.myth_examples_csv)
@@ -120,6 +126,11 @@ class ArgMatcher:
         pickle.dump(self.template_dict, open(os.path.join(
             self.preload_dir, 'template_dict.p'), "wb"))
         return self.arg_dict, self.template_dict
+
+    def fit_classifier(self):
+        X_train = self.template_dict['embeds']
+        y_train = self.template_dict['labels']
+        self.clf.fit(X_train, y_train)
 
     @staticmethod
     def load_myths(file):
@@ -201,24 +212,22 @@ class ArgMatcher:
             input_sentence_vectors.append(input_vector)
 
         input_sentence_vectors = np.array(input_sentence_vectors)
-        sent_cs = cosine_similarity(
-            input_sentence_vectors, self.template_dict['embeds'])
-        # sent_cs has dimensions (num_sentences, num_templates)
+
+        neigh_dist, neigh_ind = self.clf.kneighbors(
+            input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True)
+        neigh_sim = 1 - neigh_dist
 
         # Weighted Vote Nearest Neighbour
-        best_cs_args = np.argsort(-1 * sent_cs, axis=1)[:, :N_neighbors]
-        best_cs_labels = self.template_dict['labels'][best_cs_args]
-        best_cs_labels_oh = self.eye[best_cs_labels] #onehot
-        best_cs = sent_cs[np.expand_dims(np.arange(sent_cs.shape[0]), -1), best_cs_args]
-
-        weighted_vote = np.expand_dims(best_cs, -1) * best_cs_labels_oh
+        best_cs_labels = self.template_dict['labels'][neigh_ind]
+        best_cs_labels_oh = self.eye[best_cs_labels]  # onehot
+        weighted_vote = np.expand_dims(neigh_sim, -1) * best_cs_labels_oh
         weighted_vote = np.argmax(np.sum(weighted_vote, axis=1), -1)
 
         responses = []
 
         for i, arg in enumerate(weighted_vote):
-            sim = np.max(sent_cs[i])
-            a = np.argmax(sent_cs[i])
+            sim = np.max(neigh_sim[i])
+            a = neigh_ind[i, np.argmax(neigh_sim[i])]
             inp = input_sentences[i]
 
             if sim >= threshold:
