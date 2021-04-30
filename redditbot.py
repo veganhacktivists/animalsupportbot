@@ -86,7 +86,7 @@ class MentionsBot:
                         'mention_id': mention.id,
                         'mention_username': mention.author.name if mention.author else None,
                         'mention_text': mention.body,
-                        'date': mention.created_utc,
+                        'mention_date': mention.created_utc,
                         'subreddit': mention.subreddit.display_name.lower(),
                         'parent_id': parent.id,
                         'parent_username': parent.author.name if parent.author else None,
@@ -158,7 +158,7 @@ class MentionsBot:
                 'mention_id': mention.id,
                 'mention_username': mention.author.name if mention.author else None,
                 'mention_text': mention.body,
-                'date': mention.created_utc,
+                'mention_date': mention.created_utc,
                 'subreddit': mention.subreddit.display_name.lower(),
             }
 
