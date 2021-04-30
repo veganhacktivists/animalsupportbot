@@ -1,6 +1,7 @@
 import argparse
 import os
 import pickle
+import pprint
 import re
 from collections import OrderedDict
 
@@ -242,8 +243,16 @@ class ArgMatcher:
 
                 info = {"sim": sim,
                         "matched_text": self.template_dict['text'][a]}
-                responses.append(
-                    (inp, info, self.arg_dict['argument'][arg], best_passage))
+
+                resp = {
+                    'input_sentence': inp,
+                    'matched_argument': self.arg_dict['argument'][arg],
+                    'matched_text': self.template_dict['text'][a],
+                    'similarity': float(sim),
+                    'reply_text': best_passage
+                }
+
+                responses.append(resp)
 
         return responses
 
@@ -264,4 +273,4 @@ if __name__ == "__main__":
         while True:
             test_input = input("Enter test sentence: ")
             num_n = int(input("Num neighbours with vote: "))
-            print(argm.match_text_persentence(test_input, N_neighbors=num_n))
+            pprint.pprint(argm.match_text_persentence(test_input, N_neighbors=num_n))
