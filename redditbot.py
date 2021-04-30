@@ -210,15 +210,22 @@ class MentionsBot:
                     if resps:  # Found arg match(es)
                         formatted_response = self.format_response_persentence(
                             resps)
-                        parent.reply(formatted_response)
-                        print(formatted_response)
+                        reply_info['full_reply'] = formatted_response
+                        
+                        try:
+                            reply = parent.reply(formatted_response)
+                            print(formatted_response)
+                            reply_info['outcome'] = 'Replied with matched argument(s)'
+                            reply_info['reply_id'] = reply.id
+                        except prawcore.exceptions.Forbidden:
+                            reply = None
+                            reply_info['outcome'] = 'Found arguments but failed to reply: Forbidden'
 
                         # Add both the mention and the parent to the replied list
                         self.replied.append(mention)
                         self.replied.append(parent)
-                        reply_info['outcome'] = 'Replied with matched argument(s)'
-                        reply_info['full_reply'] = formatted_response
                         self.db.insert(reply_info)
+                            
 
                     else:  # Failed to find arg match
                         mention.reply(self.FAILURE_COMMENT)
