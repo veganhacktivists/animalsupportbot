@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import os
 import string
 import sys
@@ -10,6 +11,7 @@ import praw
 import prawcore
 import spacy
 from praw.models import Comment, Submission
+from tinydb import Query, TinyDB
 
 from argmatcher import ArgMatcher
 from local_info import USER_INFO
@@ -29,14 +31,6 @@ def parse_args():
     return args
 
 
-def read_list(file):
-    completed = []
-    with open(file) as fp:
-        for line in fp:
-            completed.append(line.strip())
-    return completed
-
-
 def load_myth_links(file):
     df = pd.read_csv(file)
     df = df.fillna('')
@@ -46,7 +40,7 @@ def load_myth_links(file):
 
 class MentionsBot:
 
-    def __init__(self, argmatch, user_info, threshold=0.6, n_neighbors=1):
+    def __init__(self, argmatch, user_info, db, threshold=0.6, n_neighbors=1):
         self.reddit = praw.Reddit(
             check_for_async=False,
             **user_info
@@ -57,15 +51,8 @@ class MentionsBot:
         self.n_neighbors = n_neighbors
         self.blacklisted_subreddits = set(['suicidewatch', 'depression'])
 
-        self.completed = []
-        self.completed_file = './completed.csv'
-        if os.path.isfile(self.completed_file):
-            self.completed = read_list(self.completed_file)
-
-        self.missed = []
-        self.missed_file = './missed.csv'
-        if os.path.isfile(self.missed_file):
-            self.missed = read_list(self.missed_file)
+        self.db = db
+        self.replied = self.fill_replied(self.db)
 
         self.alphabet = string.ascii_letters
 
@@ -76,26 +63,51 @@ class MentionsBot:
         self.GFORM_LINK = GFORM_LINK
         self.FAILURE_PM = FAILURE_PM
 
+    def fill_replied(self, db):
+        """
+        Returns a list of all parent and mention ids found in the log DB
+        """
+        replied = []
+        for entry in db.all():
+            replied.append(entry['mention_id'])
+            if 'parent_id' in entry:
+                replied.append(entry['parent_id'])
+        return replied
+
     def clear_already_replied(self):
         """
         Go through mentions manually to tick off if we have already replied
         """
         for mention in self.inbox.mentions(limit=None):
-            if mention not in self.completed:
+            if mention not in self.replied:
                 if isinstance(mention, Comment):
                     parent = mention.parent()
+                    reply_info = {
+                        'mention_id': mention.id,
+                        'mention_username': mention.author.name if mention.author else None,
+                        'mention_text': mention.body,
+                        'date': mention.created_utc,
+                        'subreddit': mention.subreddit.display_name.lower(),
+                        'parent_id': parent.id,
+                        'parent_username': parent.author.name if parent.author else None,
+                        'outcome': 'Already replied, but not found in DB'
+                    }
+
                     if isinstance(parent, Comment):
                         parent.refresh()
                         replies = parent.replies.list()
+                    elif isinstance(parent, Submission):
+                        replies = parent.comments.list()
+                    else:
+                        replies = None
+                    
+                    if replies:
                         reply_authors = [r.author for r in replies]
                         if 'animalsupportbot' in reply_authors:
-                            self.completed.append(mention)
-                            self.append_file(self.completed_file, mention)
+                            self.replied.append(mention)
+                            self.replied.append(parent)
+                            self.db.insert(reply_info)
 
-    def append_file(self, file, comment_id):
-        with open(file, 'a') as wp:
-            line = '{}\n'.format(comment_id)
-            wp.write(line)
 
     def format_response_persentence(self, resps):
         """
@@ -103,8 +115,11 @@ class MentionsBot:
         """
         args = OrderedDict({})
         for r in resps:
-            inp, info, arg, passage = r
-            sim = info['sim']
+            inp = r['input_sentence']
+            arg = r['matched_argument']
+            passage = r['reply_text']
+            sim = r['similarity']
+
             if arg not in args:
                 args[arg] = {'passage': passage, 'quotes': [inp], 'sim': sim}
             else:
@@ -138,55 +153,74 @@ class MentionsBot:
         Uses persentence argmatcher
         """
         for mention in self.inbox.mentions(limit=limit):
+
+            reply_info = {
+                'mention_id': mention.id,
+                'mention_username': mention.author.name if mention.author else None,
+                'mention_text': mention.body,
+                'date': mention.created_utc,
+                'subreddit': mention.subreddit.display_name.lower(),
+            }
+
             # Temporary restriction on only replying in test subreddit
             if mention.subreddit.display_name.lower() != 'testanimalsupportbot':
                 continue
 
             # Skip mention if included in blacklisted subreddits
             if mention.subreddit.display_name.lower() in self.blacklisted_subreddits:
-                self.completed.append(mention)
-                self.append_file(self.completed_file, mention)
+                reply_info['outcome'] = 'Blacklisted Subreddit'
+                self.replied.append(mention)
+                self.db.insert(reply_info)
                 continue
 
             # Proceed if mention has not been dealt with
-            if mention not in self.completed and mention not in self.missed:
+            if mention not in self.replied:
                 if isinstance(mention, Comment):
                     parent = mention.parent()
+                    reply_info['parent_id'] = parent.id
+                    reply_info['parent_username'] = parent.author.name if parent.author else None
 
                     # Check if parent has been handled (in case of multiple mentions)
-                    if parent in self.completed or parent in self.missed:
-                        self.completed.append(mention)
-                        self.append_file(self.completed_file, mention)
+                    if parent in self.replied:
+                        reply_info['outcome'] = 'Parent already replied to'
+                        self.replied.append(mention)
+                        self.db.insert(reply_info)
                         continue
 
                     try:
                         if isinstance(parent, Comment):
-                            comment_text = parent.body
+                            input_text = parent.body
                         elif isinstance(parent, Submission):
-                            comment_text = parent.selftext
+                            input_text = parent.selftext
                         else:
-                            comment_text = None
+                            input_text = None
                     except:
-                        comment_text = None
+                        input_text = None
 
-                    if comment_text:
+                    reply_info['input_text'] = input_text
+
+                    if input_text:
                         resps = self.argmatch.match_text_persentence(
-                            comment_text, threshold=self.threshold, N_neighbors=self.n_neighbors)
+                            input_text, threshold=self.threshold, N_neighbors=self.n_neighbors)
                     else:
                         resps = []
 
-                    if resps:
+                    reply_info['responses'] = resps
+
+                    if resps:  # Found arg match(es)
                         formatted_response = self.format_response_persentence(
                             resps)
                         parent.reply(formatted_response)
                         print(formatted_response)
 
-                        # Add both the mention and the parent to the completed list
-                        self.completed.append(mention)
-                        self.append_file(self.completed_file, mention)
-                        self.completed.append(parent)
-                        self.append_file(self.completed_file, parent)
-                    else:
+                        # Add both the mention and the parent to the replied list
+                        self.replied.append(mention)
+                        self.replied.append(parent)
+                        reply_info['outcome'] = 'Replied with matched argument(s)'
+                        reply_info['full_reply'] = formatted_response
+                        self.db.insert(reply_info)
+
+                    else:  # Failed to find arg match
                         mention.reply(self.FAILURE_COMMENT)
                         try:
                             mention.author.message("We couldn't find a response!",
@@ -195,14 +229,23 @@ class MentionsBot:
                             # PM-ing people sometimes fails, but this is not critical
                             pass
 
-                        # Add both the mention and the parent to the completed list
-                        self.missed.append(mention)
-                        self.append_file(self.missed_file, mention)
-                        self.missed.append(parent)
-                        self.append_file(self.missed_file, parent)
+                        # Add both the mention and the parent to the replied list
+                        self.replied.append(mention)
+                        self.replied.append(parent)
+                        reply_info['outcome'] = "Failed to find any matched arguments"
+                        self.db.insert(reply_info)
 
-    def run(self, refresh_rate=600, timeout_retry=600):
-        self.clear_already_replied()
+    def run(self, refresh_rate=600, timeout_retry=600, check_replied=True):
+        """
+        Run the bot, checking for mentions every refresh_rate seconds
+        In case of timeout, waits for timeout_retry seconds
+
+        If check_replied is True, will check all previous mentions to see if we have already replied
+        """
+        if check_replied:
+            print('Checking previous mentions to see if we have replied already...')
+            self.clear_already_replied()
+
         while True:
             try:
                 self.reply_mentions_persentence()
@@ -221,8 +264,10 @@ if __name__ == "__main__":
     nlp.add_pipe('universal_sentence_encoder',
                  config={'model_name': 'en_use_lg'})
 
+    db = TinyDB('./log_db.json')
+
     argm = ArgMatcher(nlp, None, None, preload=True)
-    mb = MentionsBot(argm, USER_INFO, threshold=args.threshold,
+    mb = MentionsBot(argm, USER_INFO, db, threshold=args.threshold,
                      n_neighbors=args.n_neighbors)
 
     mb.run(refresh_rate=args.refresh_rate)

@@ -7,3 +7,4 @@ gdrive-keyfile.json
 knowledge/*
 !knowledge/.gitignore
 .vscode
+log_db.json
