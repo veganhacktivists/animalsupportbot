@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import re
 import string
 import sys
 import time
@@ -189,9 +190,9 @@ class MentionsBot:
 
                     try:
                         if isinstance(parent, Comment):
-                            input_text = parent.body
+                            input_text = self.remove_usernames(parent.body)
                         elif isinstance(parent, Submission):
-                            input_text = parent.selftext
+                            input_text = self.remove_usernames(parent.selftext)
                         else:
                             input_text = None
                     except:
@@ -200,8 +201,7 @@ class MentionsBot:
                     reply_info['input_text'] = input_text
 
                     if input_text:
-                        mention_hints = mention.body.replace(
-                            'u/animalsupportbot', '').replace('/', '').replace(',', '.')
+                        mention_hints = self.remove_usernames(mention.body).replace(',', '.')
                         resps = self.argmatch.match_text_persentence(
                             input_text, threshold=self.threshold, N_neighbors=self.n_neighbors)
 
@@ -292,6 +292,15 @@ class MentionsBot:
                 print('Got a ServerError, sleeping for {} seconds before trying again...'.format(
                     timeout_retry))
                 time.sleep(timeout_retry)
+    
+    @staticmethod
+    def remove_usernames(text):
+        """
+        Removes any /u/username or u/username strings
+        """
+        newtext = re.sub('\/u\/[A-Za-z0-9_-]+', '', text)
+        newtext = re.sub('u\/[A-Za-z0-9_-]+', '', newtext)
+        return newtext
 
 
 if __name__ == "__main__":
