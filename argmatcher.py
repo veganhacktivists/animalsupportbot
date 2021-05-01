@@ -184,9 +184,11 @@ class ArgMatcher:
         pass
 
     def match_text_persentence(self, text,
-                               passage_length=5,
+                               arg_labels=None,
                                threshold=0.5,
-                               N_neighbors=1):
+                               N_neighbors=1,
+                               return_reply=True,
+                               passage_length=5):
         """
         Splits input into sentences and then performs similarity scoring
         Returns:
@@ -204,22 +206,43 @@ class ArgMatcher:
         input_vector = t.vector
         input_sentence_vectors = []
 
-        if len([s.text for s in t.sents]) > 2:
-            for s in t.sents:
-                input_sentences.append(s.text)
-                input_sentence_vectors.append(s.vector)
-        else:
-            input_sentences.append(text)
-            input_sentence_vectors.append(input_vector)
+        for s in t.sents:
+            input_sentences.append(s.text)
+            input_sentence_vectors.append(s.vector)
 
         input_sentence_vectors = np.array(input_sentence_vectors)
 
-        neigh_dist, neigh_ind = self.clf.kneighbors(
-            input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True)
+        if not arg_labels:
+            y = self.template_dict['labels']
+            y_text = self.template_dict['text']
+
+            neigh_dist, neigh_ind = self.clf.kneighbors(
+                input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True)
+        else:
+            # Getting neighbors with only arg_labels as candidates
+            # This is quite inefficient: TODO: clean this up
+            mini_clf = KNeighborsClassifier(n_neighbors=N_neighbors,
+                                            weights='distance',
+                                            metric='cosine')
+
+            X_train = self.template_dict['embeds']
+            y_train = self.template_dict['labels']
+            y_text = self.template_dict['text']
+            mask = [i for i, y in enumerate(y_train) if y in arg_labels]
+
+            X = X_train[mask]
+            y = y_train[mask]
+            y_text = y_text[mask]
+
+            mini_clf.fit(X, y)
+
+            neigh_dist, neigh_ind = mini_clf.kneighbors(
+                input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True)
+
         neigh_sim = 1 - neigh_dist
 
         # Weighted Vote Nearest Neighbour
-        best_cs_labels = self.template_dict['labels'][neigh_ind]
+        best_cs_labels = y[neigh_ind]
         best_cs_labels_oh = self.eye[best_cs_labels]  # onehot
         weighted_vote = np.expand_dims(neigh_sim, -1) * best_cs_labels_oh
         weighted_vote = np.argmax(np.sum(weighted_vote, axis=1), -1)
@@ -232,22 +255,23 @@ class ArgMatcher:
             inp = input_sentences[i]
 
             if sim >= threshold:
-                if not self.arg_dict['full_comment'][arg]:
-                    cs_argsent = cosine_similarity(
-                        input_vector[np.newaxis, :], self.arg_dict['sentence_embeds'][arg])
-                    best_sent = np.argmax(cs_argsent[0])
-                    best_passage = ' '.join(
-                        self.arg_dict['sentences'][arg][best_sent:best_sent+passage_length])
+                if return_reply:
+                    if not self.arg_dict['full_comment'][arg]:
+                        cs_argsent = cosine_similarity(
+                            input_vector[np.newaxis, :], self.arg_dict['sentence_embeds'][arg])
+                        best_sent = np.argmax(cs_argsent[0])
+                        best_passage = ' '.join(
+                            self.arg_dict['sentences'][arg][best_sent:best_sent+passage_length])
+                    else:
+                        best_passage = self.arg_dict['text'][arg]
                 else:
-                    best_passage = self.arg_dict['text'][arg]
-
-                info = {"sim": sim,
-                        "matched_text": self.template_dict['text'][a]}
+                    best_passage = ''
 
                 resp = {
                     'input_sentence': inp,
                     'matched_argument': self.arg_dict['argument'][arg],
-                    'matched_text': self.template_dict['text'][a],
+                    'matched_text': y_text[a],
+                    'matched_arglabel': int(arg),
                     'similarity': float(sim),
                     'reply_text': best_passage
                 }
@@ -273,4 +297,5 @@ if __name__ == "__main__":
         while True:
             test_input = input("Enter test sentence: ")
             num_n = int(input("Num neighbours with vote: "))
-            pprint.pprint(argm.match_text_persentence(test_input, N_neighbors=num_n))
+            pprint.pprint(argm.match_text_persentence(
+                test_input, N_neighbors=num_n))
