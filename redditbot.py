@@ -24,6 +24,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--threshold", help="Minimum similarity threshold that has to be met to match an argument (float: between 0 and 1)",
                         type=float, default=0.6)
+    parser.add_argument("--hint-threshold", help="Minimum sim threshold that has to be met to match a HINTED argument (float: between 0 and 1)",
+                        type=float, default=0.4)
     parser.add_argument(
         "--refresh-rate", help="Refresh rate in seconds to check for mentions", type=int, default=60)
     parser.add_argument(
@@ -201,7 +203,8 @@ class MentionsBot:
                     reply_info['input_text'] = input_text
 
                     if input_text:
-                        mention_hints = self.remove_usernames(mention.body).replace(',', '.')
+                        mention_hints = self.remove_usernames(
+                            mention.body).replace(',', '.')
                         resps = self.argmatch.match_text_persentence(
                             input_text, threshold=self.threshold, N_neighbors=self.n_neighbors)
 
@@ -292,7 +295,7 @@ class MentionsBot:
                 print('Got a ServerError, sleeping for {} seconds before trying again...'.format(
                     timeout_retry))
                 time.sleep(timeout_retry)
-    
+
     @staticmethod
     def remove_usernames(text):
         """
@@ -312,7 +315,12 @@ if __name__ == "__main__":
     db = TinyDB('./log_db.json')
 
     argm = ArgMatcher(nlp, None, None, preload=True)
-    mb = MentionsBot(argm, USER_INFO, db, threshold=args.threshold,
-                     n_neighbors=args.n_neighbors)
+    mb = MentionsBot(argm,
+                     USER_INFO,
+                     db,
+                     threshold=args.threshold,
+                     hint_threshold=args.hint_threshold,
+                     n_neighbors=args.n_neighbors
+                     )
 
     mb.run(refresh_rate=args.refresh_rate)
