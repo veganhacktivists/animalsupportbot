@@ -201,9 +201,7 @@ class MentionsBot:
 
                     if input_text:
                         mention_hints = mention.body.replace(
-                            'u/animalsupportbot', '').replace('/', '').strip('\n').strip().split(',')
-                        mention_hints = list(filter(None, mention_hints))
-                        mention_hints = '.'.join(mention_hints)
+                            'u/animalsupportbot', '').replace('/', '').replace(',', '.')
                         resps = self.argmatch.match_text_persentence(
                             input_text, threshold=self.threshold, N_neighbors=self.n_neighbors)
 
