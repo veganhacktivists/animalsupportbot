@@ -40,7 +40,7 @@ def load_myth_links(file):
 
 class MentionsBot:
 
-    def __init__(self, argmatch, user_info, db, threshold=0.6, n_neighbors=1):
+    def __init__(self, argmatch, user_info, db, threshold=0.6, n_neighbors=1, hint_threshold=0.4):
         self.reddit = praw.Reddit(
             check_for_async=False,
             **user_info
@@ -48,6 +48,7 @@ class MentionsBot:
         self.inbox = praw.models.Inbox(self.reddit, _data={})
         self.argmatch = argmatch
         self.threshold = threshold
+        self.hint_threshold = hint_threshold
         self.n_neighbors = n_neighbors
         self.blacklisted_subreddits = set(['suicidewatch', 'depression'])
 
@@ -100,7 +101,7 @@ class MentionsBot:
                         replies = parent.comments.list()
                     else:
                         replies = None
-                    
+
                     if replies:
                         reply_authors = [r.author for r in replies]
                         if 'animalsupportbot' in reply_authors:
@@ -108,8 +109,7 @@ class MentionsBot:
                             self.replied.append(parent)
                             self.db.insert(reply_info)
 
-
-    def format_response_persentence(self, resps):
+    def format_response(self, resps):
         """
         Formatting responses given from the argument matcher
         """
@@ -147,7 +147,7 @@ class MentionsBot:
         parts.append(self.END_TEMPLATE.format(', '.join(arglist)))
         return '\n'.join(parts)
 
-    def reply_mentions_persentence(self, limit=None):
+    def reply_mentions(self, limit=None):
         """
         Main functionality. Go through mentions and reply to parent comments
         Uses persentence argmatcher
@@ -200,18 +200,55 @@ class MentionsBot:
                     reply_info['input_text'] = input_text
 
                     if input_text:
+                        mention_hints = mention.body.replace(
+                            'u/animalsupportbot', '').replace('/', '').strip('\n').strip().split(',')
+                        mention_hints = list(filter(None, mention_hints))
+                        mention_hints = '.'.join(mention_hints)
                         resps = self.argmatch.match_text_persentence(
                             input_text, threshold=self.threshold, N_neighbors=self.n_neighbors)
+
+                        if mention_hints:
+                            # Use mention hints to match arguments
+                            reply_info['mention_hints'] = mention_hints
+
+                            hint_resps = self.argmatch.match_text_persentence(
+                                mention_hints, threshold=0.0, N_neighbors=1, return_reply=False)
+
+                            reply_info['hint_responses'] = hint_resps
+
+                            arg_labels = set([r['matched_arglabel']
+                                             for r in hint_resps])
+                            r_arg_labels = set(
+                                [r['matched_arglabel'] for r in resps])
+
+                            # Check only the hinted args which aren't matched already
+                            arg_labels = arg_labels - r_arg_labels
+
+                            if arg_labels:
+                                r_arglabels = set(
+                                    [r['matched_arglabel'] for r in resps])
+
+                                hinted_resps = self.argmatch.match_text_persentence(
+                                    input_text, arg_labels=arg_labels, threshold=self.hint_threshold, N_neighbors=self.n_neighbors)
+                                rsents = [r['input_sentence'] for r in resps]
+
+                                for r in hinted_resps:
+                                    if r['input_sentence'] in rsents:
+                                        # This means the sentence was matched up already with better similarity
+                                        continue
+                                    else:
+                                        resps += r
+
                     else:
                         resps = []
 
                     reply_info['responses'] = resps
 
                     if resps:  # Found arg match(es)
-                        formatted_response = self.format_response_persentence(
+                        formatted_response = self.format_response(
                             resps)
                         reply_info['full_reply'] = formatted_response
-                        
+
                         try:
                             reply = parent.reply(formatted_response)
                             print(formatted_response)
@@ -221,12 +258,6 @@ class MentionsBot:
                             reply = None
                             reply_info['outcome'] = 'Found arguments but failed to reply: Forbidden'
 
-                        # Add both the mention and the parent to the replied list
-                        self.replied.append(mention)
-                        self.replied.append(parent)
-                        self.db.insert(reply_info)
-                            
-
                     else:  # Failed to find arg match
                         mention.reply(self.FAILURE_COMMENT)
                         try:
@@ -235,12 +266,12 @@ class MentionsBot:
                         except:
                             # PM-ing people sometimes fails, but this is not critical
                             pass
-
-                        # Add both the mention and the parent to the replied list
-                        self.replied.append(mention)
-                        self.replied.append(parent)
                         reply_info['outcome'] = "Failed to find any matched arguments"
-                        self.db.insert(reply_info)
+
+                    # Add both the mention and the parent to the replied list
+                    self.replied.append(mention)
+                    self.replied.append(parent)
+                    self.db.insert(reply_info)
 
     def run(self, refresh_rate=600, timeout_retry=600, check_replied=True):
         """
@@ -255,7 +286,7 @@ class MentionsBot:
 
         while True:
             try:
-                self.reply_mentions_persentence()
+                self.reply_mentions()
                 print('{}\tReplied to mentions, sleeping for {} seconds...'.format(
                     time.ctime(), refresh_rate))
                 time.sleep(refresh_rate)
