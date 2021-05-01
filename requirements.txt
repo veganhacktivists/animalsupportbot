@@ -1,5 +1,6 @@
 absl-py==0.12.0
 astunparse==1.6.3
+autopep8==1.5.6
 beautifulsoup4==4.9.3
 blis==0.7.4
 bs4==0.0.1
@@ -46,6 +47,7 @@ preshed==3.0.5
 protobuf==3.15.8
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pycodestyle==2.7.0
 pydantic==1.7.3
 pyparsing==2.4.7
 python-dateutil==2.8.1
@@ -71,6 +73,8 @@ tensorflow-hub==0.12.0
 termcolor==1.1.0
 thinc==8.0.3
 threadpoolctl==2.1.0
+tinydb==4.4.0
+toml==0.10.2
 tqdm==4.60.0
 typer==0.3.2
 typing-extensions==3.7.4.3
