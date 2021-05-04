@@ -42,7 +42,7 @@ pip install -r requirements.txt
 python argmatcher.py
 ```
 
-This populates `./preload_dicts/` with pickles of the precalculated embeddings for each sentence in the examples and responses.
+This populates `./preload_dicts/` with embeddings for each example for each myth. This saves us having to calculate them every time we want to restart the bot.
 
 ## (Step 2) Run reddit bot
 
