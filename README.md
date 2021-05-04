@@ -18,7 +18,7 @@ Non-vegan user: <Comment with myth(s)>
 
 ## Argument hinting
 
-The bot can be helped to match up arguments by 'hinting' in the summoning process. This is done by putting in a helpful phrase/keywords in the summoning reply:
+The bot can be helped to match up arguments by 'hinting' in the summoning process. This is done by putting in a helpful phrase/keywords in the summoning reply (which can be separated with commas or full stops):
 
 ```
 Non-vegan user: <Comment with myth(s)>
@@ -28,7 +28,7 @@ Non-vegan user: <Comment with myth(s)>
 
 # Requirements
 
-Requirements can be found in `requirements.txt`
+Tested on Python 3.6.9 using a virtualenv. Requirements can be found in `requirements.txt`.
 
 ```sh
 pip install -r requirements.txt
