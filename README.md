@@ -36,40 +36,13 @@ pip install -r requirements.txt
 
 # Instructions
 
-## (Step 0) Get knowledge base from GDrive 
-
-To get the freshest version of the myths and examples from Google Drive, we will need the `gdrive-keyfile.json` in this directory which grants access to the spreadsheet (granted to VH members).
-
-Once this is in the repo directory, simply run:
-
-```sh
-python update_knowledge.py
-```
-
-This will add `myths.csv` and `myths_egs.csv` to the `./knowledge/` directory.
-
-Alternatively, these can be downloaded and exported from the Google spreadsheet to csv from the following link (with `myths.csv` being the Myths sheet and `myths_egs.csv` being the Examples sheet):
-
-### [Animalsupportbot Knowledge Base](https://docs.google.com/spreadsheets/d/1epSnuOAhkv97UDs3NPAUtYMBNUzRo783GizPrADY4T8/edit?usp=sharing)
-
 ## (Step 1) Pre-compute embeddings
 
 ```sh
 python argmatcher.py
 ```
 
-This populates `./preload_dicts/` with pickles of the precalculated embeddings for each sentence in the examples and responses. This assumes the presence of `myths.csv` and `myths_egs.csv` in the `./knowledge/` directory.
-
-
-## Note
-
-For convenience, steps 0 and 1 can be run using the following command:
-
-```sh
-./update.sh
-```
-
-This still requires the aforementioned `gdrive-keyfile.json`. It does not need to be run if steps 0 and 1 have been run already.
+This populates `./preload_dicts/` with pickles of the precalculated embeddings for each sentence in the examples and responses.
 
 ## (Step 2) Run reddit bot
 
