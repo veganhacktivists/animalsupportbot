@@ -188,9 +188,11 @@ class ArgMatcher:
                                threshold=0.5,
                                N_neighbors=1,
                                return_reply=True,
-                               passage_length=5):
+                               passage_length=5,
+                               certain_threshold=0.9):
         """
         Splits input into sentences and then performs similarity scoring
+
         Inputs:
             text: the input text
             arg_labels: (optional) a set of ints - the matcher will only match to these classes,
@@ -199,6 +201,7 @@ class ArgMatcher:
             return_reply: Boolean which determines if the response text should be returned,
             passage_length: If the reply text is not pasted in full, returns this many sentences
                                 in addition to the most similar response sentence.
+            certain_threshold: Threshold at which N_neighbors is ignored and the best match is picked.
 
         Returns:
             list of dicts with the following info:
@@ -209,6 +212,8 @@ class ArgMatcher:
                     'matched_arglabel': The argument label (int) of matched_argument,
                     'similarity': similarity score of matched_text,
                     'reply_text': The most similar passage in the response text
+                    'similarities': The similarities of the n_neighbors,
+                    'neighbor_texts': The texts of the most similar n_neighbors
                 }
         """
         text = str(self.prefilter(text))
@@ -252,6 +257,8 @@ class ArgMatcher:
 
         neigh_sim = 1 - neigh_dist
 
+        best_text = y_text[neigh_ind]
+
         # Weighted Vote Nearest Neighbour
         best_cs_labels = y[neigh_ind]
         best_cs_labels_oh = self.eye[best_cs_labels]  # onehot
@@ -260,10 +267,15 @@ class ArgMatcher:
 
         responses = []
 
-        for i, arg in enumerate(weighted_vote):
+        for i, weighted_arg in enumerate(weighted_vote):
             sim = np.max(neigh_sim[i])
             a = neigh_ind[i, np.argmax(neigh_sim[i])]
             inp = input_sentences[i]
+
+            if sim >= certain_threshold:
+                arg = y[a]
+            else:
+                arg = weighted_arg
 
             if sim >= threshold:
                 if return_reply:
@@ -285,7 +297,9 @@ class ArgMatcher:
                     'matched_text': y_text[a],
                     'matched_arglabel': int(arg),
                     'similarity': float(sim),
-                    'reply_text': best_passage
+                    'reply_text': best_passage,
+                    'similarities': list(map(float, neigh_sim[i])),
+                    'neighbor_texts': list(map(str, best_text[i]))
                 }
 
                 responses.append(resp)
