@@ -60,8 +60,6 @@ class MentionsBot:
 
         self.alphabet = string.ascii_letters
 
-        self.arg_link_dict = load_myth_links('./knowledge/myths.csv')
-
         self.END_TEMPLATE = END_TEMPLATE
         self.FAILURE_COMMENT = FAILURE_COMMENT
         self.GFORM_LINK = GFORM_LINK
@@ -122,6 +120,7 @@ class MentionsBot:
             arg = r['matched_argument']
             passage = r['reply_text']
             sim = r['similarity']
+            link = r['link']
 
             if arg not in args:
                 args[arg] = {'passage': passage, 'quotes': [inp], 'sim': sim}
@@ -141,9 +140,9 @@ class MentionsBot:
             passage = args[arg]['passage'] + '\n'
             parts.append(quotes)
             parts.append(passage)
-            if arg in self.arg_link_dict:
+            if link != 'nan':
                 arglist.append('[({}): {}]({})'.format(
-                    self.alphabet[i], arg, self.arg_link_dict[arg]))
+                    self.alphabet[i], arg, link))
             else:
                 arglist.append('({}): {}'.format(self.alphabet[i], arg))
 

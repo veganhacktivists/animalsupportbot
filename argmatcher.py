@@ -1,4 +1,5 @@
 import argparse
+import glob
 import os
 import pickle
 import pprint
@@ -10,12 +11,11 @@ import numpy as np
 import pandas as pd
 import spacy
 import spacy_universal_sentence_encoder
+import yaml
 from markdown import markdown
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from sklearn.neighbors import KNeighborsClassifier
 from tqdm import tqdm
-
-from update_knowledge import arg_dict_from_df, read_eg_df
 
 
 def parse_args():
@@ -62,21 +62,53 @@ class ArgMatcher:
             n_neighbors=self.n_neighbors, weights='distance', metric='cosine')
         self.fit_classifier()
 
+    @staticmethod
+    def get_myths(myth_dir):
+        """
+        Get a dict containing all the arguments, examples, responses
+        """
+        myth_dict = OrderedDict({})
+        yamls = sorted(glob.glob(os.path.join(myth_dir, 'myths/*.yaml')))
+        for file in yamls:
+            with open(file) as fp:
+                arg_dict = yaml.safe_load(fp)
+            resp_md_path = os.path.join(
+                myth_dir, 'responses/{}.md'.format(arg_dict['key']))
+
+            assert os.path.isfile(
+                resp_md_path), "Couldn't find {}".format(resp_md_path)
+            with open(resp_md_path) as fp:
+                arg_dict['text'] = ''.join(fp.readlines())
+
+            key = arg_dict['key']
+            myth_dict[key] = arg_dict
+        return myth_dict
+
     def setup(self):
-        self.arg_examples = self.load_myth_examples(self.myth_examples_csv)
-        self.arg_text_df = self.load_myths(self.myths_csv)
+        self.myth_dict = self.get_myths('./knowledge/')
         self.arg_dict, self.template_dict = self.populate_embed_dicts()
         return self.arg_dict, self.template_dict
 
     def populate_embed_dicts(self):
         """
         This function populates the embedding lookup tables
+
+        TODO: clean this up - this became quite messy after refactoring how the knowledge was stored
         """
-        self.arg_dict = OrderedDict({})
-        self.arg_dict['argument'] = self.arg_text_df['Title'].values
-        self.arg_dict['text'] = self.arg_text_df['Text'].values
-        self.arg_dict['full_comment'] = self.arg_text_df['Full Comment'].values.astype(
-            bool)
+        self.arg_dict = OrderedDict({'argument': [],
+                                     'text': [],
+                                     'full_comment': [],
+                                     'link': [],
+                                     'examples': []
+                                     })
+
+        for i, arg in enumerate(self.myth_dict):
+            self.arg_dict['argument'].append(self.myth_dict[arg]['title'])
+            self.arg_dict['text'].append(self.myth_dict[arg]['text'])
+            self.arg_dict['full_comment'].append(
+                self.myth_dict[arg]['full_comment'])
+            self.arg_dict['link'].append(self.myth_dict[arg]['link'])
+            self.arg_dict['examples'].append(self.myth_dict[arg]['examples'])
 
         # Getting per sentence embeddings
         arg_s_embeds = []
@@ -98,7 +130,7 @@ class ArgMatcher:
 
         # Labelled example embeddings
         template_embeds, template_labels, template_text = [], [], []
-        for i, a in enumerate(self.arg_examples):
+        for i, a in enumerate(self.arg_dict['argument']):
             # Argument title
             template_embeds.append(self.nlp(a).vector)
             template_text.append('<ARGUMENT TITLE>')
@@ -109,7 +141,7 @@ class ArgMatcher:
             template_text.append('<ARGUMENT TEXT>')
             template_labels.append(i)
 
-            for text in self.arg_examples[a]:
+            for text in self.arg_dict['examples'][i]:
                 # Argument examples
                 template_embeds.append(self.nlp(text).vector)
                 template_text.append(text)
@@ -280,7 +312,7 @@ class ArgMatcher:
             if sim >= threshold:
                 if return_reply:
                     if not self.arg_dict['full_comment'][arg]:
-                         # Find the best passage if full_comment is False
+                        # Find the best passage if full_comment is False
                         cs_argsent = cosine_similarity(
                             input_vector[np.newaxis, :], self.arg_dict['sentence_embeds'][arg])
                         best_sent = np.argmax(cs_argsent[0])
@@ -299,7 +331,9 @@ class ArgMatcher:
                     'similarity': float(sim),
                     'reply_text': best_passage,
                     'similarities': list(map(float, neigh_sim[i])),
-                    'neighbor_texts': list(map(str, best_text[i]))
+                    'neighbor_texts': list(map(str, best_text[i])),
+                    'certain_threshold': certain_threshold,
+                    'link': self.arg_dict['link'][arg]
                 }
 
                 responses.append(resp)
