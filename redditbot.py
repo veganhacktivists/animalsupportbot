@@ -15,7 +15,7 @@ from praw.models import Comment, Submission
 from tinydb import Query, TinyDB
 
 from argmatcher import ArgMatcher
-from local_info import USER_INFO
+from user_info import USER_INFO
 from response_templates import (END_TEMPLATE, FAILURE_COMMENT, FAILURE_PM,
                                 GFORM_LINK)
 
