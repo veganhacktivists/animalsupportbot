@@ -60,6 +60,17 @@ python argmatcher.py
 
 This populates `./preload_dicts/` with pickles of the precalculated embeddings for each sentence in the examples and responses. This assumes the presence of `myths.csv` and `myths_egs.csv` in the `./knowledge/` directory.
 
+
+## Note
+
+For convenience, steps 0 and 1 can be run using the following command:
+
+```sh
+./update.sh
+```
+
+This still requires the aforementioned `gdrive-keyfile.json`. It does not need to be run if steps 0 and 1 have been run already.
+
 ## (Step 2) Run reddit bot
 
 To run this step, `./local_info.py` must exist in the repo directory. This contains the secret keys etc. to authenticate with the Reddit API. It looks something like this:
