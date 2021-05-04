@@ -4,7 +4,5 @@ missed.csv
 preload_dicts/*
 __pycache__/*
 gdrive-keyfile.json
-knowledge/*
-!knowledge/.gitignore
 .vscode
 log_db.json
