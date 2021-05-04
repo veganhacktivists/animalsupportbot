@@ -46,7 +46,7 @@ This populates `./preload_dicts/` with embeddings for each example for each myth
 
 ## (Step 2) Run reddit bot
 
-To run this step, `./local_info.py` must exist in the repo directory. This contains the secret keys etc. to authenticate with the Reddit API. It looks something like this:
+To run this step, `./user_info.py` must exist in the repo directory. This contains the secret keys etc. to authenticate with the Reddit API. It looks something like this:
 
 ```py
 USER_INFO = {
