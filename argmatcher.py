@@ -191,14 +191,25 @@ class ArgMatcher:
                                passage_length=5):
         """
         Splits input into sentences and then performs similarity scoring
+        Inputs:
+            text: the input text
+            arg_labels: (optional) a set of ints - the matcher will only match to these classes,
+            threshold: the minimum threshold that the similarity must have to be matched, 
+            N_neighbors: number of neighbors with a weighted vote,
+            return_reply: Boolean which determines if the response text should be returned,
+            passage_length: If the reply text is not pasted in full, returns this many sentences
+                                in addition to the most similar response sentence.
+
         Returns:
-        list of sentences which match threshold:
-            (
-                input sentence,
-                info: {similarity, matched_template},
-                argument title,
-                best matched sentence in argument + passage_length subsequent sentences
-            )
+            list of dicts with the following info:
+                {
+                    'input_sentence': Sentence from text,
+                    'matched_argument': The argument input_sentence was matched to,
+                    'matched_text': The nearest neighbour text which input_sentence matched to,
+                    'matched_arglabel': The argument label (int) of matched_argument,
+                    'similarity': similarity score of matched_text,
+                    'reply_text': The most similar passage in the response text
+                }
         """
         text = str(self.prefilter(text))
         t = self.nlp(text)
@@ -257,6 +268,7 @@ class ArgMatcher:
             if sim >= threshold:
                 if return_reply:
                     if not self.arg_dict['full_comment'][arg]:
+                         # Find the best passage if full_comment is False
                         cs_argsent = cosine_similarity(
                             input_vector[np.newaxis, :], self.arg_dict['sentence_embeds'][arg])
                         best_sent = np.argmax(cs_argsent[0])
