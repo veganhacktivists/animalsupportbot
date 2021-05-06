@@ -1,6 +1,4 @@
 user_info.py
-completed.csv
-missed.csv
 preload_dicts/*
 __pycache__/*
 gdrive-keyfile.json
