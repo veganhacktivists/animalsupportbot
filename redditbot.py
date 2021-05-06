@@ -212,7 +212,7 @@ class MentionsBot:
                             reply_info['mention_hints'] = mention_hints
 
                             hint_resps = self.argmatch.match_text_persentence(
-                                mention_hints, threshold=0.0, N_neighbors=1, return_reply=False)
+                                mention_hints, threshold=self.hint_threshold, N_neighbors=1, return_reply=False)
 
                             reply_info['hint_responses'] = hint_resps
 
