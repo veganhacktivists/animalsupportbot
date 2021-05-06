@@ -137,7 +137,7 @@ class MentionsBot:
         for i, arg in enumerate(args):
             quotes = ''.join(['>{} \n\n'.format(q)
                               for q in args[arg]['quotes']]) + '> ^(({})^) \n\n'.format(self.alphabet[i])
-            passage = args[arg]['passage'] + '\n'
+            passage = args[arg]['passage'] + '\n\n --- \n\n'
             parts.append(quotes)
             parts.append(passage)
             if link != 'nan':
