@@ -6,7 +6,7 @@ It replies to a parent comment when summoned via mentions.
 
 # Bot Usage
 
-The bot can be summoned using mentions, which means replying to the comment the bot should respond to with `/u/animalsupportbot` somewhere in the reply.
+The bot can be summoned using mentions on Reddit, which means replying to the comment the bot should respond to with `/u/animalsupportbot` somewhere in the reply.
 
 For example:
 
@@ -16,9 +16,7 @@ Non-vegan user: <Comment with myth(s)>
 	└── animalsupportbot: <response>
 ```
 
-## Argument hinting
-
-The bot can be helped to match up arguments by 'hinting' in the summoning process. This is done by putting in a helpful phrase/keywords in the summoning reply (which can be separated with commas or full stops):
+The bot can also be helped to match up arguments by 'hinting' in the summoning process. This is done by putting in a helpful phrase/keywords in the summoning reply (which can be separated with commas or full stops):
 
 ```
 Non-vegan user: <Comment with myth(s)>
@@ -34,7 +32,7 @@ Tested on Python 3.6.9 using a virtualenv. Requirements can be found in `require
 pip install -r requirements.txt
 ```
 
-# Instructions
+# Deployment Instructions
 
 ## (Step 1) Pre-compute embeddings
 
@@ -114,5 +112,46 @@ Num neighbours with vote: 3
                 'draw the line?',
   'similarity': 1.0}]
 ```
+
+# Knowledge base Overview
+
+The information for the various arguments that the bot can match and respond to is located in `knowledge`. This folder has the following structure, with the myth "Plants Feel Pain" used as an example:
+
+```
+    └── knowledge                    
+        ├── myths
+	|   ├── plants_feel_pain.yaml
+	|   └── ...
+        └── responses
+	    ├── plants_feel_pain.md
+	    └── ...
+```
+
+The `.yaml` files in `knowledge/myths` contain auxiliary information about the argument, and the `.md` files in `knowledge/responses` contains the actual response text.
+
+## Argument/Myth YAML structure
+
+Inside `knowledge/myths` are `.yaml` files containing the following information:
+
+```yaml
+key: plants_feel_pain
+title: Plants Feel Pain 
+full_comment: false 
+link: <URL> 
+examples:
+- what if plants feel pain
+- plants feel pain too
+- how do you know plants don't feel pain
+```
+
+- `key` is the unique identifier for this argument. The response text in `knowledge/responses` must have the filename: `<key>.md`.
+- `title` is the formatted title for this argument.
+- `full_comment` is a boolean which indicates whether or not the full response should be posted. If this is `false` then the most similar sentence to the input in the response text is selected (along with the proceeding 5 sentences).
+- `link` an optional link to highlight the argument title with in the response, such as a YouTube video. If there is no link, this must be set to `nan`.
+- `examples` the example sentences/phrases which should link to this argument. These examples make up the "training set" for the nearest neighbor classifier.
+
+## Response Editing
+
+The responses are all stored in `.md` files in `knowledge/responses`. These should be written in the markdown style that Reddit uses.
 
 
