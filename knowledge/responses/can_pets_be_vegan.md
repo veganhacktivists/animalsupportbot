@@ -8,9 +8,9 @@ The term obligate carnivore is only relevant when talking about wild animals bec
 
 Finally, I'd like to cite several studies that support supplemented vegan cat and dog food.
 
-> "[A] significant and growing body of population studies and case reports have indicated that cats and dogs maintained on vegetarian diets may be healthy—including those exercising at the highest levels—and, indeed, may experience a range of health benefits. Such diets must be nutritionally complete and reasonably balanced".
+ - ["[A] significant and growing body of population studies and case reports have indicated that cats and dogs maintained on vegetarian diets may be healthy—including those exercising at the highest levels—and, indeed, may experience a range of health benefits. Such diets must be nutritionally complete and reasonably balanced".](https://www.mdpi.com/2076-2615/6/9/57)
 
-> "Wakefield and colleagues (2006) compared the health of 34 cats maintained on vegetarian diets for at least a year, with that of 52 cats maintained on meat-based diets for at least a year. There were no significant differences in age, sex, body condition, housing, or perceived health status, with most cats described as healthy or generally healthy. These results are hardly surprising, when we consider that animals need specific nutrients, not ingredients. There is no scientific reason why a diet comprised only of plant, mineral and synthetically-based ingredients cannot be formulated to meet all of the palatability, nutritional and bioavailability needs of the species for which it is intended. "
+ - "[Wakefield and colleagues (2006)](https://doi.org/10.2460/javma.229.1.70) compared the health of 34 cats maintained on vegetarian diets for at least a year, with that of 52 cats maintained on meat-based diets for at least a year. There were no significant differences in age, sex, body condition, housing, or perceived health status, with most cats described as healthy or generally healthy. These results are hardly surprising, when we consider that animals need specific nutrients, not ingredients. There is no scientific reason why a diet comprised only of plant, mineral and synthetically-based ingredients cannot be formulated to meet all of the palatability, nutritional and bioavailability needs of the species for which it is intended."
 
 ### References
 
