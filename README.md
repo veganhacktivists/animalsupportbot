@@ -24,6 +24,10 @@ Non-vegan user: <Comment with myth(s)>
 	└── animalsupportbot: <response, using hints to match more easily>
 ```
 
+# [Contributing to Responses](knowledge/contributing_responses.md)
+
+[Information for contributing to responses can be found by clicking here](knowledge/contributing_responses.md)
+
 # Requirements
 
 Tested on Python 3.6.9 using a virtualenv. Requirements can be found in `requirements.txt`.
