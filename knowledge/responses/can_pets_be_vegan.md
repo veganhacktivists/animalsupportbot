@@ -6,7 +6,7 @@ As long as any vegan food is supplemented with those things and has a high prote
 
 The term obligate carnivore is only relevant when talking about wild animals because it's related to their nutrient requirements in a diet they could naturally acquire in the wild, but because we can give cats supplemented and appropriately designed food, it's not an issue in domesticated animals. (I've linked to a vegan cat food that does just this at the bottom).
 
-Finally, I'd like to cite several studies that support supplemented vegan cat and dog food.
+Finally, I'd like to cite some studies that support supplemented vegan cat and dog food.
 
  - ["[A] significant and growing body of population studies and case reports have indicated that cats and dogs maintained on vegetarian diets may be healthy—including those exercising at the highest levels—and, indeed, may experience a range of health benefits. Such diets must be nutritionally complete and reasonably balanced".](https://www.mdpi.com/2076-2615/6/9/57)
 
