@@ -12,15 +12,18 @@ The responses are located in [`knowledge/responses`](https://github.com/veganhac
 
 The easiest way to modify an existing response is via GitHub. You must be logged into GitHub to do this. 
 
+### [Video tutorial](https://streamable.com/9kikno)
+
 On the response `.md` file which you wish to edit:
    1. Click "Edit this file" button around the top right of the file text - this looks like a pen/pencil shaped icon for most.
    2. Make your changes in the editing box.
    3. Describe the changes you made in a commit message at the bottom.
    4. Click the "Propose changes" button at the bottom.
+   5. On the next screen, click "Create pull request".
+   6. On the next screen, click "Create pull request" again.
 
 After this, a maintainer of this project will approve/reject the changes you made.
 
-TODO: video tutorial how to propose changes to a response.
 
 ## Adding a new myth/response
 
