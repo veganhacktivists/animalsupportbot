@@ -29,4 +29,6 @@ Vegan animal diets: facts and myths. (n.d.). The Vegan Society. Retrieved March 
 Wakefield, L. A., Shofer, F. S., & Michel, K. E. (2006). Evaluation of cats fed vegetarian diets and attitudes of their caregivers. Journal of the American Veterinary Medical Association, 229(1), 70–73. https://doi.org/10.2460/javma.229.1.70
 
 Wild Earth - As seen on Shark Tank - Dog Food. (n.d.). Wild Earth. Retrieved March 26, 2021, from https://wildearth.com
+
+Reputable Source (2021)
 ‌
