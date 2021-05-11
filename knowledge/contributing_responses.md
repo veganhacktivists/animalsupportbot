@@ -28,7 +28,7 @@ On the response `.md` file which you wish to edit:
    5. On the next screen, click "Create pull request".
    6. On the next screen, click "Create pull request" again.
 
-After this, a maintainer of this project will approve/reject the changes you made.
+After this, a maintainer of this project will approve/reject the changes you made. Please be as descriptive as possible in the comments of your pull request to help speed up this process!
 
 ## Adding a new myth/response
 
