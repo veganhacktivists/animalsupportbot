@@ -10,20 +10,25 @@ However, a good example is [Can pets be vegan?](https://github.com/veganhacktivi
 
 The responses are located in [`knowledge/responses`](https://github.com/veganhacktivists/animalsupportbot/tree/master/knowledge/responses) in `.md` files.
 
-The easiest way to modify an existing response is via GitHub. You must be logged into GitHub to do this. 
+The easiest way to modify an existing response is via GitHub. You must be logged into GitHub to do this. The following GIF shows how to make these modifications.
 
-### [Video tutorial](https://streamable.com/9kikno)
+### Video tutorial
+
+<p align="center">
+  <img alt="Modifying Tutorial GIF" src="../../media/modifying_tutorial.gif" width="980px">
+</p>
+
+### Text tutorial
 
 On the response `.md` file which you wish to edit:
    1. Click "Edit this file" button around the top right of the file text - this looks like a pen/pencil shaped icon for most.
    2. Make your changes in the editing box.
-   3. Describe the changes you made in a commit message at the bottom.
+   3. Describe the changes you made in a commit message at the bottom. Make sure to provide an informative description of the changes you made, and why.
    4. Click the "Propose changes" button at the bottom.
    5. On the next screen, click "Create pull request".
    6. On the next screen, click "Create pull request" again.
 
 After this, a maintainer of this project will approve/reject the changes you made.
-
 
 ## Adding a new myth/response
 
