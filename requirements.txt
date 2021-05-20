@@ -12,7 +12,6 @@ click==7.1.2
 contextvars==2.4
 cymem==2.0.5
 Cython==0.29.23
-dataclasses==0.8
 en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.0.0/en_core_web_lg-3.0.0-py3-none-any.whl
 flatbuffers==1.12
 gast==0.3.3
@@ -40,7 +39,6 @@ opt-einsum==3.3.0
 packaging==20.9
 pandas==1.1.5
 pathy==0.5.2
-pkg-resources==0.0.0
 praw==7.2.0
 prawcore==2.0.0
 preshed==3.0.5
