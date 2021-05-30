@@ -8,10 +8,8 @@
 
 **Having hens with the intention of taking their eggs means they must produce for their lives to have any value.** Hens will commonly eat their eggs, which can replenish nutrients lost in the egg-laying process. Hen owners who keep hens for their eggs will view that as unproductive and cull them to keep the others from learning the same behavior. That is no different from what the egg industry does when a hen stops producing eggs. Similar to how we want our dogs and cats to live long and happy lives. We should not view other animals as objects available for us to exploit. Instead, we should regard all animals as self-governing beings that deserve to live just as much as we do.
 
-***
 ### References
 
-References:
 Ofei, M. (2021, May 19). Is It Okay For Vegans To Eat Eggs From Backyard Chickens? The Minimalist Vegan. https://theminimalistvegan.com/backyard-eggs/. 
 
 The Humane Society of the United States, "Welfare Issues with Selective Breeding of Egg-Laying Hens for Productivity" (2007). IMPACTS ON FARM ANIMALS. 13.
