@@ -13,6 +13,7 @@ import prawcore
 import spacy
 from praw.models import Comment, Submission
 from tinydb import Query, TinyDB
+import validators
 
 from argmatcher import ArgMatcher
 from user_info import USER_INFO
@@ -140,7 +141,7 @@ class MentionsBot:
             passage = args[arg]['passage'] + '\n\n --- \n\n'
             parts.append(quotes)
             parts.append(passage)
-            if link != 'nan':
+            if validators.url(link):
                 arglist.append('[({}): {}]({})'.format(
                     self.alphabet[i], arg, link))
             else:
