@@ -357,5 +357,10 @@ if __name__ == "__main__":
         while True:
             test_input = input("Enter test sentence: ")
             num_n = int(input("Num neighbours with vote: "))
-            pprint.pprint(argm.match_text_persentence(
-                test_input, N_neighbors=num_n))
+            output = argm.match_text_persentence(test_input, N_neighbors=num_n)
+
+            # Replacing the newline characters to make printing a little nicer
+            for o in output:
+                o['reply_text'] = o['reply_text'].replace('\n', '')
+
+            pprint.pprint(output)
