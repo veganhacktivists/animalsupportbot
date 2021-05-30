@@ -1,8 +1,10 @@
 examples:
 - Backyard eggs are vegan
 - They live better lives in a backyard
-- You don't have to kill a hen to get eggs
-full_comment: false
+- "What's wrong with raising my own chicken for eggs"
+- "There's nothing bad about having a chicken for eggs at home"
+- Factory farmed eggs are bad but I raise my own chickens for eggs and they live good lives
+full_comment: true
 key: backyard_eggs_are_vegan
 link: https://www.youtube.com/watch?v=7YFz99OT18k
 title: Backyard Eggs Are Vegan
