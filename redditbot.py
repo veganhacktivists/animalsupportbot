@@ -205,14 +205,14 @@ class MentionsBot:
                     if input_text:
                         mention_hints = self.remove_usernames(
                             mention.body).replace(',', '.')
-                        resps = self.argmatch.match_text_persentence(
+                        resps = self.argmatch.match_text(
                             input_text, threshold=self.threshold, N_neighbors=self.n_neighbors)
 
                         if mention_hints:
                             # Use mention hints to match arguments
                             reply_info['mention_hints'] = mention_hints
 
-                            hint_resps = self.argmatch.match_text_persentence(
+                            hint_resps = self.argmatch.match_text(
                                 mention_hints, threshold=self.hint_threshold, N_neighbors=1, return_reply=False)
 
                             reply_info['hint_responses'] = hint_resps
@@ -229,7 +229,7 @@ class MentionsBot:
                                 r_arglabels = set(
                                     [r['matched_arglabel'] for r in resps])
 
-                                hinted_resps = self.argmatch.match_text_persentence(
+                                hinted_resps = self.argmatch.match_text(
                                     input_text, arg_labels=arg_labels, threshold=self.hint_threshold, N_neighbors=self.n_neighbors)
                                 rsents = [r['input_sentence'] for r in resps]
 

@@ -82,6 +82,10 @@ class ArgMatcher:
 
             key = arg_dict['key']
             myth_dict[key] = arg_dict
+        
+        # Move the n/a class to the front, ensures class label is 0
+        myth_dict.move_to_end('_na_', last=False)
+
         return myth_dict
 
     def setup(self):
@@ -214,6 +218,25 @@ class ArgMatcher:
         output: TODO
         """
         pass
+
+    @staticmethod
+    def remove_nan_arguments(responses):
+        """
+        Goes through responses and removes _na_ matched sentences
+        """
+        new_resps = []
+        for r in responses:
+            # _na_ class should have 0 class label
+            if r['matched_arglabel'] != 0:
+                new_resps.append(r)
+        return new_resps
+
+    def match_text(self, text, **kwargs):
+        """
+        Match text persentence with _na_ removed
+        """
+        resps = self.match_text_persentence(text, **kwargs)
+        return self.remove_nan_arguments(resps)
 
     def match_text_persentence(self, text,
                                arg_labels=None,
