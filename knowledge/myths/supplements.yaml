@@ -5,7 +5,7 @@ examples:
 - Only vegans need B12 supplements
 - B12 is found naturally in animals
 - Vegans need fortified foods
-full_comment: false
+full_comment: true
 key: supplements
 link: nan
 title: Supplements Are Only For Vegans
