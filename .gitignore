@@ -4,3 +4,4 @@ __pycache__/*
 gdrive-keyfile.json
 .vscode
 log_db.json
+config.yaml

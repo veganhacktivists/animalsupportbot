@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+from pprint import pprint
 import re
 import string
 import sys
@@ -14,11 +15,10 @@ import spacy
 from praw.models import Comment, Submission
 from tinydb import Query, TinyDB
 import validators
+import yaml
 
 from argmatcher import ArgMatcher
-from user_info import USER_INFO
-from response_templates import (END_TEMPLATE, FAILURE_COMMENT, FAILURE_PM,
-                                GFORM_LINK)
+from response_templates import (END_TEMPLATE, FAILURE_COMMENT, FAILURE_PM)
 
 
 def parse_args():
@@ -41,20 +41,31 @@ def load_myth_links(file):
     return OrderedDict({k: v for k, v in zip(df['Title'].values,
                                              df['Link'].values) if v})
 
+def load_config_yaml(file):
+    with open(file) as fp:
+        config = yaml.safe_load(fp)
+        user_info = config['user_info']
+    return config
 
 class MentionsBot:
 
-    def __init__(self, argmatch, user_info, db, threshold=0.6, n_neighbors=1, hint_threshold=0.4):
+    def __init__(self, argmatch, config, db, threshold=0.6, n_neighbors=1, hint_threshold=0.4):
+        self.config = config
         self.reddit = praw.Reddit(
             check_for_async=False,
-            **user_info
+            **config['user_info']
         )
         self.inbox = praw.models.Inbox(self.reddit, _data={})
         self.argmatch = argmatch
         self.threshold = threshold
         self.hint_threshold = hint_threshold
         self.n_neighbors = n_neighbors
-        self.blacklisted_subreddits = set(['suicidewatch', 'depression'])
+
+        self.whitelisted_subreddits = set(config['whitelisted'])
+        self.blacklisted_subreddits = set(['suicidewatch', 'depression']).union(set(config['blacklisted']))
+
+        self.whitelisted_subreddits = set([s.lower() for s in self.whitelisted_subreddits])
+        self.blacklisted_subreddits = set([s.lower() for s in self.blacklisted_subreddits])
 
         self.db = db
         self.replied = self.fill_replied(self.db)
@@ -63,7 +74,6 @@ class MentionsBot:
 
         self.END_TEMPLATE = END_TEMPLATE
         self.FAILURE_COMMENT = FAILURE_COMMENT
-        self.GFORM_LINK = GFORM_LINK
         self.FAILURE_PM = FAILURE_PM
 
     def fill_replied(self, db):
@@ -165,11 +175,15 @@ class MentionsBot:
                 'subreddit': mention.subreddit.display_name.lower(),
             }
 
-            # Temporary restriction on only replying in test subreddit
-            if mention.subreddit.display_name.lower() != 'testanimalsupportbot':
+            # Skip mention if not in whitelisted subreddits
+            if mention.subreddit.display_name.lower() not in self.whitelisted_subreddits:
+                reply_info['outcome'] = 'Mention not in whitelisted subreddit: {}'.format(mention.subreddit.display_name.lower())
+                self.replied.append(mention)
+                self.db.insert(reply_info)
                 continue
 
             # Skip mention if included in blacklisted subreddits
+            # TODO: currently irrelevant as whitelist exists, enable this if whitelist is not enabled
             if mention.subreddit.display_name.lower() in self.blacklisted_subreddits:
                 reply_info['outcome'] = 'Blacklisted Subreddit'
                 self.replied.append(mention)
@@ -263,7 +277,7 @@ class MentionsBot:
                         mention.reply(self.FAILURE_COMMENT)
                         try:
                             mention.author.message("We couldn't find a response!",
-                                                   self.FAILURE_PM.format(self.argmatch.prefilter(parent.body), self.GFORM_LINK))
+                                                   self.FAILURE_PM.format(self.argmatch.prefilter(parent.body)))
                         except:
                             # PM-ing people sometimes fails, but this is not critical
                             pass
@@ -308,6 +322,9 @@ class MentionsBot:
 
 if __name__ == "__main__":
     args = parse_args()
+    config = load_config_yaml('./config.yaml')
+    pprint(config)
+
     nlp = spacy.load('en_core_web_lg')
     nlp.add_pipe('universal_sentence_encoder',
                  config={'model_name': 'en_use_lg'})
@@ -316,7 +333,7 @@ if __name__ == "__main__":
 
     argm = ArgMatcher(nlp, None, None, preload=True)
     mb = MentionsBot(argm,
-                     USER_INFO,
+                     config,
                      db,
                      threshold=args.threshold,
                      hint_threshold=args.hint_threshold,

@@ -1,0 +1,21 @@
+# User Info
+user_info:
+  client_id: "XXXXXXXX"
+  client_secret: "XXXXXXXX"
+  password: "XXXXXXXX"
+  user_agent: "XXXXXXXX"
+  username: "animalsupportbot"
+
+# Whitelisted Subreddits
+whitelisted:
+  - testanimalsupportbot
+  - vegan
+  - debateavegan
+  - vegancirclejerk
+  - veganforcirclejerkers
+  - veganuk
+
+# Blacklisted Subreddits (in addition to defaults)
+blacklisted:
+  - depression
+  - suicidewatch
