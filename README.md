@@ -140,7 +140,8 @@ Inside `knowledge/myths` are `.yaml` files containing the following information:
 ```yaml
 key: plants_feel_pain
 title: Plants Feel Pain 
-full_comment: false 
+full_comment: false
+enable_resp: true
 link: <URL> 
 examples:
 - what if plants feel pain
@@ -151,6 +152,7 @@ examples:
 - `key` is the unique identifier for this argument. The response text in `knowledge/responses` must have the filename: `<key>.md`.
 - `title` is the formatted title for this argument.
 - `full_comment` is a boolean which indicates whether or not the full response should be posted. If this is `false` then the most similar sentence to the input in the response text is selected (along with the proceeding 5 sentences).
+- `enable_resp` determines whether an argument should be responded to, if matched. This flag exists mainly to disable unfinished responses.
 - `link` an optional link to highlight the argument title with in the response, such as a YouTube video. If there is no link, this must be set to `nan`.
 - `examples` the example sentences/phrases which should link to this argument. These examples make up the "training set" for the nearest neighbor classifier.
 
