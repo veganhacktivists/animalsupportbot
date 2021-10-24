@@ -13,7 +13,8 @@ examples:
 - Meat is too yummy
 - I can't give up chicken nuggies
 - Mmmm chicken nuggies
-full_comment: false
+full_comment: true
 key: i_love_how_animals_taste
 link: https://www.youtube.com/watch?v=w7sn6gyxMvE&list=PL03LZR09P2gQJyBgHk_XE8gbj8j9uFs8G&index=3
 title: I Love How Animals Taste!
+enable_resp: true

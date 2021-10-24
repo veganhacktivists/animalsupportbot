@@ -8,7 +8,8 @@ examples:
 - vegans are sexist
 - veganism is racist
 - vegans are racist
-full_comment: false
+full_comment: true
 key: human_rights_issues_are_more_important_than_veganism
 link: https://www.youtube.com/watch?v=G66fBppXw4I&list=PL03LZR09P2gQJyBgHk_XE8gbj8j9uFs8G&index=9
 title: Human Rights Issues are More Important Than Veganism
+enable_resp: true
