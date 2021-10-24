@@ -20,3 +20,4 @@ full_comment: true
 key: can_pets_be_vegan
 link: nan
 title: Can pets be vegan?
+enable_resp: true

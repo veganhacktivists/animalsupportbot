@@ -8,7 +8,8 @@ examples:
 - They are fullfilling the natural purpose of their lives by contributing to the food
   chain
 - Humans are superior to animals, therefore it's okay to eat animals.
-full_comment: false
+full_comment: true
 key: humans_are_at_the_top_of_the_food_chain
 link: https://www.youtube.com/watch?v=-truOzeWBR8&list=PL03LZR09P2gQJyBgHk_XE8gbj8j9uFs8G&index=12
 title: Humans Are at the Top of the Food Chain
+enable_resp: true

@@ -3,7 +3,8 @@ examples:
 - Stop being preachy
 - Let me live my life
 - personal choice
-full_comment: false
+full_comment: true
 key: its_my_personal_choice_to_eat_animals
 link: https://www.youtube.com/watch?v=LseSfTA1BMw&list=PL03LZR09P2gQJyBgHk_XE8gbj8j9uFs8G&index=2
 title: It's My Personal Choice To Eat Animals!
+enable_resp: true
