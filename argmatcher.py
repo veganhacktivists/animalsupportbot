@@ -102,6 +102,7 @@ class ArgMatcher:
         self.arg_dict = OrderedDict({'argument': [],
                                      'text': [],
                                      'full_comment': [],
+                                     'enable_resp': [],
                                      'link': [],
                                      'examples': []
                                      })
