@@ -111,6 +111,7 @@ class ArgMatcher:
             self.arg_dict['text'].append(self.myth_dict[arg]['text'])
             self.arg_dict['full_comment'].append(
                 self.myth_dict[arg]['full_comment'])
+            self.arg_dict['enable_resp'].append(self.myth_dict[arg]['enable_resp'])
             self.arg_dict['link'].append(self.myth_dict[arg]['link'])
             self.arg_dict['examples'].append(self.myth_dict[arg]['examples'])
 
@@ -169,17 +170,6 @@ class ArgMatcher:
         y_train = self.template_dict['labels']
         self.clf.fit(X_train, y_train)
 
-    @staticmethod
-    def load_myths(file):
-        df = pd.read_csv(file)
-        return df
-
-    @staticmethod
-    def load_myth_examples(file):
-        egs_df = read_eg_df(file)
-        arg_examples = arg_dict_from_df(egs_df)
-        return arg_examples
-
     def prefilter(self, text):
         """
         prefilter text:
@@ -223,11 +213,13 @@ class ArgMatcher:
     def remove_nan_arguments(responses):
         """
         Goes through responses and removes _na_ matched sentences
+
+        Also removes arguments where "enable_resp" flag of the response is False
         """
         new_resps = []
         for r in responses:
             # _na_ class should have 0 class label
-            if r['matched_arglabel'] != 0:
+            if r['matched_arglabel'] != 0 and r['enable_resp']:
                 new_resps.append(r)
         return new_resps
 
@@ -349,6 +341,7 @@ class ArgMatcher:
                 resp = {
                     'input_sentence': inp,
                     'matched_argument': self.arg_dict['argument'][arg],
+                    'enable_resp': self.arg_dict['enable_resp'][arg],
                     'matched_text': y_text[a],
                     'matched_arglabel': int(arg),
                     'similarity': float(sim),

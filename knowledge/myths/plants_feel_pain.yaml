@@ -2,7 +2,8 @@ examples:
 - what if plants feel pain
 - plants feel pain too
 - how do you know plants don't feel pain
-full_comment: false
+full_comment: true
 key: plants_feel_pain
 link: https://www.youtube.com/watch?v=EqUFqaeZA2g&list=PL03LZR09P2gQJyBgHk_XE8gbj8j9uFs8G&index=10
 title: Plants Feel Pain
+enable_resp: true

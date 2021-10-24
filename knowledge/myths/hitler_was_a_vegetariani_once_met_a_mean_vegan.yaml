@@ -1,7 +1,8 @@
 examples:
 - vegans are too preachy
 - vegans are mean
-full_comment: false
+full_comment: true
 key: hitler_was_a_vegetariani_once_met_a_mean_vegan
 link: https://www.youtube.com/watch?v=8rzdZqjCDdo&list=PL03LZR09P2gQJyBgHk_XE8gbj8j9uFs8G&index=21
 title: Hitler Was a Vegetarian/I Once Met a Mean Vegan
+enable_resp: true

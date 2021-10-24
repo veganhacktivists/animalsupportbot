@@ -2,12 +2,10 @@ examples:
 - corporations are more at fault
 - only me changing won't do anything
 - the government needs to step in
-- 'But even if one person goes vegan, the majority of the world isn''t vegan so what
-  difference does it really make?
-
-  '
+- "But even if one person goes vegan, the majority of the world isn't vegan so what difference does it really make?"
 - one person won't make a difference
-full_comment: false
+full_comment: true
 key: one_person_cant_make_a_difference
 link: https://www.youtube.com/watch?v=d6fG1my3SFg&list=PL03LZR09P2gQJyBgHk_XE8gbj8j9uFs8G&index=30
 title: One Person Can't Make a Difference
+enable_resp: true

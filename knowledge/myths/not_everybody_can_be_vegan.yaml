@@ -10,3 +10,4 @@ full_comment: true
 key: not_everybody_can_be_vegan
 link: nan
 title: Not everybody can be vegan
+enable_resp: true
