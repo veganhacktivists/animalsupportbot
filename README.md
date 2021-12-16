@@ -140,7 +140,7 @@ Inside `knowledge/myths` are `.yaml` files containing the following information:
 ```yaml
 key: plants_feel_pain
 title: Plants Feel Pain 
-full_comment: false
+full_comment: true
 enable_resp: true
 link: <URL> 
 examples:
