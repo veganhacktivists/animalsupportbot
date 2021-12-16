@@ -44,7 +44,7 @@ This file contains the general information needed to match and catalogue this my
 ```yaml
 key: plants_feel_pain
 title: Plants Feel Pain 
-full_comment: false 
+full_comment: true
 link: <URL> 
 examples:
 - what if plants feel pain
