@@ -5,7 +5,7 @@ However, the terms “free-range” or “humane” and other marketing terminol
 Regardless of the privilege or treatment received by the animals, there is no ethical or humane way to treat animals destined to be exploited and slaughtered. Improving the treatment of animals is better than maintaining the status quo, but it does not provide any substantial relief to the animals themselves and does not address or eradicate the problem of animal abuse and exploitation. Animals don’t want bigger cages or larger barns. All they want is to be free, not “free-range,” but free to live their lives in their entirety, without fear of human-inflicted pain, suffering or exploitation.
 
 ### References
-[1] Alonso ME, González-Montaña JR, Lomillos JM. Consumers' Concerns and Perceptions of Farm Animal Welfare. Animals (Basel). 2020 Feb 27;10(3):385. doi: 10.3390/ani10030385. PMID: 32120935; PMCID: PMC7143148.
+[1] [Alonso ME, González-Montaña JR, Lomillos JM. Consumers' Concerns and Perceptions of Farm Animal Welfare. Animals (Basel). 2020 Feb 27;10(3):385. doi: 10.3390/ani10030385. PMID: 32120935; PMCID: PMC7143148.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7143148/#B11-animals-10-00385)
 
 [2] https://faunalytics.org/consumer-attitudes-to-animal-welfare-a-report-for-freedom-food-by-igd
 
