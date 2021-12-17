@@ -6,7 +6,9 @@ Regardless of the privilege or treatment received by the animals, there is no et
 
 ### References
 [1] Alonso ME, González-Montaña JR, Lomillos JM. Consumers' Concerns and Perceptions of Farm Animal Welfare. Animals (Basel). 2020 Feb 27;10(3):385. doi: 10.3390/ani10030385. PMID: 32120935; PMCID: PMC7143148.
-[2] https://faunalytics.org/consumer-attitudes-to-animal-welfare-a-report-for-freedom-food-by-igd
-[3] https://faunalytics.org/the-battery-ban-and-beyond-layer-hen-welfare-internationally/
-[4] https://forum.effectivealtruism.org/posts/4rtnBHaxHYsEofWH3/do-countries-comply-with-eu-animal-welfae-laws
 
+[2] https://faunalytics.org/consumer-attitudes-to-animal-welfare-a-report-for-freedom-food-by-igd
+
+[3] https://faunalytics.org/the-battery-ban-and-beyond-layer-hen-welfare-internationally/
+
+[4] https://forum.effectivealtruism.org/posts/4rtnBHaxHYsEofWH3/do-countries-comply-with-eu-animal-welfae-laws
