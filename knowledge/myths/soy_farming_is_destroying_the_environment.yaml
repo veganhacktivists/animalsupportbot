@@ -2,7 +2,7 @@ examples:
 - soy farming is ruining the rainforest
 - tofu and soymilk is causing deforestation
 - the soy that goes into tofu causes just as many problems as beef
-full_comment: false
+full_comment: true 
 key: soy_farming_is_destroying_the_environment
 link: https://www.youtube.com/watch?v=SzOeOfNFpts&list=PL03LZR09P2gQJyBgHk_XE8gbj8j9uFs8G&index=25
 title: Soy Farming is Destroying the Environment
