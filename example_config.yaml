@@ -1,3 +1,11 @@
+# Classifier options
+threshold: 0.65
+hint_threshold: 0.4
+n_neighbors: 3
+
+# Redditbot options
+refresh_rate: 60
+
 # User Info
 user_info:
   client_id: "XXXXXXXX"

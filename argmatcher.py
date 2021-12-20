@@ -20,22 +20,26 @@ from tqdm import tqdm
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--test", help="interactive test of the argmatcher",
-                        action="store_true", default=False)
+    parser.add_argument(
+        "--test",
+        help="interactive test of the argmatcher",
+        action="store_true",
+        default=False,
+    )
     args = parser.parse_args()
     return args
 
 
 class ArgMatcher:
-
-    def __init__(self,
-                 nlp,
-                 myths_csv,
-                 myth_examples_csv,
-                 n_neighbors=1,
-                 preload=False,
-                 preload_dir='./preload_dicts'
-                 ):
+    def __init__(
+        self,
+        nlp,
+        myths_csv,
+        myth_examples_csv,
+        n_neighbors=1,
+        preload=False,
+        preload_dir="./preload_dicts",
+    ):
         self.nlp = nlp
         self.myths_csv = myths_csv
         self.myth_examples_csv = myth_examples_csv
@@ -47,19 +51,22 @@ class ArgMatcher:
         if not preload:
             self.arg_dict, self.template_dict = self.setup()
         else:
-            arg_dict_path = os.path.join(preload_dir, 'arg_dict.p')
-            template_dict_path = os.path.join(preload_dir, 'template_dict.p')
-            assert os.path.isfile(
-                arg_dict_path), "Couldn't find {}".format(arg_dict_path)
+            arg_dict_path = os.path.join(preload_dir, "arg_dict.p")
+            template_dict_path = os.path.join(preload_dir, "template_dict.p")
+            assert os.path.isfile(arg_dict_path), "Couldn't find {}".format(
+                arg_dict_path
+            )
             assert os.path.isfile(template_dict_path), "Couldn't find {}".format(
-                template_dict_path)
+                template_dict_path
+            )
 
             self.arg_dict = pickle.load(open(arg_dict_path, "rb"))
             self.template_dict = pickle.load(open(template_dict_path, "rb"))
 
-        self.eye = np.eye(len(self.arg_dict['argument']) + 1)
+        self.eye = np.eye(len(self.arg_dict["argument"]) + 1)
         self.clf = KNeighborsClassifier(
-            n_neighbors=self.n_neighbors, weights='distance', metric='cosine')
+            n_neighbors=self.n_neighbors, weights="distance", metric="cosine"
+        )
         self.fit_classifier()
 
     @staticmethod
@@ -68,28 +75,28 @@ class ArgMatcher:
         Get a dict containing all the arguments, examples, responses
         """
         myth_dict = OrderedDict({})
-        yamls = sorted(glob.glob(os.path.join(myth_dir, 'myths/*.yaml')))
+        yamls = sorted(glob.glob(os.path.join(myth_dir, "myths/*.yaml")))
         for file in yamls:
             with open(file) as fp:
                 arg_dict = yaml.safe_load(fp)
             resp_md_path = os.path.join(
-                myth_dir, 'responses/{}.md'.format(arg_dict['key']))
+                myth_dir, "responses/{}.md".format(arg_dict["key"])
+            )
 
-            assert os.path.isfile(
-                resp_md_path), "Couldn't find {}".format(resp_md_path)
+            assert os.path.isfile(resp_md_path), "Couldn't find {}".format(resp_md_path)
             with open(resp_md_path) as fp:
-                arg_dict['text'] = ''.join(fp.readlines())
+                arg_dict["text"] = "".join(fp.readlines())
 
-            key = arg_dict['key']
+            key = arg_dict["key"]
             myth_dict[key] = arg_dict
-        
+
         # Move the n/a class to the front, ensures class label is 0
-        myth_dict.move_to_end('_na_', last=False)
+        myth_dict.move_to_end("_na_", last=False)
 
         return myth_dict
 
     def setup(self):
-        self.myth_dict = self.get_myths('./knowledge/')
+        self.myth_dict = self.get_myths("./knowledge/")
         self.arg_dict, self.template_dict = self.populate_embed_dicts()
         return self.arg_dict, self.template_dict
 
@@ -99,31 +106,33 @@ class ArgMatcher:
 
         TODO: clean this up - this became quite messy after refactoring how the knowledge was stored
         """
-        self.arg_dict = OrderedDict({'argument': [],
-                                     'text': [],
-                                     'full_comment': [],
-                                     'enable_resp': [],
-                                     'link': [],
-                                     'examples': []
-                                     })
+        self.arg_dict = OrderedDict(
+            {
+                "argument": [],
+                "text": [],
+                "full_comment": [],
+                "enable_resp": [],
+                "link": [],
+                "examples": [],
+            }
+        )
 
         for i, arg in enumerate(self.myth_dict):
-            self.arg_dict['argument'].append(self.myth_dict[arg]['title'])
-            self.arg_dict['text'].append(self.myth_dict[arg]['text'])
-            self.arg_dict['full_comment'].append(
-                self.myth_dict[arg]['full_comment'])
-            self.arg_dict['enable_resp'].append(self.myth_dict[arg]['enable_resp'])
-            self.arg_dict['link'].append(self.myth_dict[arg]['link'])
-            self.arg_dict['examples'].append(self.myth_dict[arg]['examples'])
+            self.arg_dict["argument"].append(self.myth_dict[arg]["title"])
+            self.arg_dict["text"].append(self.myth_dict[arg]["text"])
+            self.arg_dict["full_comment"].append(self.myth_dict[arg]["full_comment"])
+            self.arg_dict["enable_resp"].append(self.myth_dict[arg]["enable_resp"])
+            self.arg_dict["link"].append(self.myth_dict[arg]["link"])
+            self.arg_dict["examples"].append(self.myth_dict[arg]["examples"])
 
         # Getting per sentence embeddings
         arg_s_embeds = []
         arg_sentences = []
-        for a, arg in enumerate(tqdm(self.arg_dict['argument'])):
+        for a, arg in enumerate(tqdm(self.arg_dict["argument"])):
             sentence_embeds = []
             sentence_texts = []
-            if not self.arg_dict['full_comment'][a]:
-                for sent in self.nlp(str(self.arg_dict['text'][a])).sents:
+            if not self.arg_dict["full_comment"][a]:
+                for sent in self.nlp(str(self.arg_dict["text"][a])).sents:
                     sentence_embeds.append(sent.vector)
                     sentence_texts.append(sent.text)
                 sentence_embeds = np.array(sentence_embeds)
@@ -131,44 +140,46 @@ class ArgMatcher:
             arg_s_embeds.append(sentence_embeds)
             arg_sentences.append(sentence_texts)
 
-        self.arg_dict['sentence_embeds'] = arg_s_embeds
-        self.arg_dict['sentences'] = arg_sentences
+        self.arg_dict["sentence_embeds"] = arg_s_embeds
+        self.arg_dict["sentences"] = arg_sentences
 
         # Labelled example embeddings
         template_embeds, template_labels, template_text = [], [], []
-        for i, a in enumerate(self.arg_dict['argument']):
+        for i, a in enumerate(self.arg_dict["argument"]):
             # Argument title
             template_embeds.append(self.nlp(a).vector)
-            template_text.append('<ARGUMENT TITLE>')
+            template_text.append("<ARGUMENT TITLE>")
             template_labels.append(i)
             # Response text
-            template_embeds.append(
-                self.nlp(str(self.arg_dict['text'][i])).vector)
-            template_text.append('<ARGUMENT TEXT>')
+            template_embeds.append(self.nlp(str(self.arg_dict["text"][i])).vector)
+            template_text.append("<ARGUMENT TEXT>")
             template_labels.append(i)
 
-            for text in self.arg_dict['examples'][i]:
+            for text in self.arg_dict["examples"][i]:
                 # Argument examples
                 template_embeds.append(self.nlp(text).vector)
                 template_text.append(text)
                 template_labels.append(i)
 
         self.template_dict = OrderedDict({})
-        self.template_dict['embeds'] = np.array(template_embeds)  # X
-        self.template_dict['labels'] = np.array(template_labels)  # y
-        self.template_dict['text'] = np.array(template_text)  # X_text
+        self.template_dict["embeds"] = np.array(template_embeds)  # X
+        self.template_dict["labels"] = np.array(template_labels)  # y
+        self.template_dict["text"] = np.array(template_text)  # X_text
 
         # writing dicts to pickle
         os.makedirs(self.preload_dir, exist_ok=True)
-        pickle.dump(self.arg_dict, open(os.path.join(
-            self.preload_dir, 'arg_dict.p'), "wb"))
-        pickle.dump(self.template_dict, open(os.path.join(
-            self.preload_dir, 'template_dict.p'), "wb"))
+        pickle.dump(
+            self.arg_dict, open(os.path.join(self.preload_dir, "arg_dict.p"), "wb")
+        )
+        pickle.dump(
+            self.template_dict,
+            open(os.path.join(self.preload_dir, "template_dict.p"), "wb"),
+        )
         return self.arg_dict, self.template_dict
 
     def fit_classifier(self):
-        X_train = self.template_dict['embeds']
-        y_train = self.template_dict['labels']
+        X_train = self.template_dict["embeds"]
+        y_train = self.template_dict["labels"]
         self.clf.fit(X_train, y_train)
 
     def prefilter(self, text):
@@ -177,9 +188,9 @@ class ArgMatcher:
             e.g. strip markdown and characters that mess up formatting
         """
         html = markdown(text)
-        soup = bs4.BeautifulSoup(html, features='html.parser')
-        only_text = ' '.join(soup.findAll(text=True))
-        only_text = re.sub('\n', ' ', only_text)
+        soup = bs4.BeautifulSoup(html, features="html.parser")
+        only_text = " ".join(soup.findAll(text=True))
+        only_text = re.sub("\n", " ", only_text)
         return only_text
 
     def classify_relevant(self, text):
@@ -220,7 +231,7 @@ class ArgMatcher:
         new_resps = []
         for r in responses:
             # _na_ class should have 0 class label
-            if r['matched_arglabel'] != 0 and r['enable_resp']:
+            if r["matched_arglabel"] != 0 and r["enable_resp"]:
                 new_resps.append(r)
         return new_resps
 
@@ -231,20 +242,23 @@ class ArgMatcher:
         resps = self.match_text_persentence(text, **kwargs)
         return self.remove_nan_arguments(resps)
 
-    def match_text_persentence(self, text,
-                               arg_labels=None,
-                               threshold=0.5,
-                               N_neighbors=1,
-                               return_reply=True,
-                               passage_length=5,
-                               certain_threshold=0.9):
+    def match_text_persentence(
+        self,
+        text,
+        arg_labels=None,
+        threshold=0.5,
+        N_neighbors=1,
+        return_reply=True,
+        passage_length=5,
+        certain_threshold=0.9,
+    ):
         """
         Splits input into sentences and then performs similarity scoring
 
         Inputs:
             text: the input text
             arg_labels: (optional) a set of ints - the matcher will only match to these classes,
-            threshold: the minimum threshold that the similarity must have to be matched, 
+            threshold: the minimum threshold that the similarity must have to be matched,
             N_neighbors: number of neighbors with a weighted vote,
             return_reply: Boolean which determines if the response text should be returned,
             passage_length: If the reply text is not pasted in full, returns this many sentences
@@ -277,21 +291,22 @@ class ArgMatcher:
         input_sentence_vectors = np.array(input_sentence_vectors)
 
         if not arg_labels:
-            y = self.template_dict['labels']
-            y_text = self.template_dict['text']
+            y = self.template_dict["labels"]
+            y_text = self.template_dict["text"]
 
             neigh_dist, neigh_ind = self.clf.kneighbors(
-                input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True)
+                input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True
+            )
         else:
             # Getting neighbors with only arg_labels as candidates
             # This is quite inefficient: TODO: clean this up
-            mini_clf = KNeighborsClassifier(n_neighbors=N_neighbors,
-                                            weights='distance',
-                                            metric='cosine')
+            mini_clf = KNeighborsClassifier(
+                n_neighbors=N_neighbors, weights="distance", metric="cosine"
+            )
 
-            X_train = self.template_dict['embeds']
-            y_train = self.template_dict['labels']
-            y_text = self.template_dict['text']
+            X_train = self.template_dict["embeds"]
+            y_train = self.template_dict["labels"]
+            y_text = self.template_dict["text"]
             mask = [i for i, y in enumerate(y_train) if y in arg_labels]
 
             X = X_train[mask]
@@ -301,7 +316,8 @@ class ArgMatcher:
             mini_clf.fit(X, y)
 
             neigh_dist, neigh_ind = mini_clf.kneighbors(
-                input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True)
+                input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True
+            )
 
         neigh_sim = 1 - neigh_dist
 
@@ -327,30 +343,35 @@ class ArgMatcher:
 
             if sim >= threshold:
                 if return_reply:
-                    if not self.arg_dict['full_comment'][arg]:
+                    if not self.arg_dict["full_comment"][arg]:
                         # Find the best passage if full_comment is False
                         cs_argsent = cosine_similarity(
-                            input_vector[np.newaxis, :], self.arg_dict['sentence_embeds'][arg])
+                            input_vector[np.newaxis, :],
+                            self.arg_dict["sentence_embeds"][arg],
+                        )
                         best_sent = np.argmax(cs_argsent[0])
-                        best_passage = ' '.join(
-                            self.arg_dict['sentences'][arg][best_sent:best_sent+passage_length])
+                        best_passage = " ".join(
+                            self.arg_dict["sentences"][arg][
+                                best_sent : best_sent + passage_length
+                            ]
+                        )
                     else:
-                        best_passage = self.arg_dict['text'][arg]
+                        best_passage = self.arg_dict["text"][arg]
                 else:
-                    best_passage = ''
+                    best_passage = ""
 
                 resp = {
-                    'input_sentence': inp,
-                    'matched_argument': self.arg_dict['argument'][arg],
-                    'enable_resp': self.arg_dict['enable_resp'][arg],
-                    'matched_text': y_text[a],
-                    'matched_arglabel': int(arg),
-                    'similarity': float(sim),
-                    'reply_text': best_passage,
-                    'similarities': list(map(float, neigh_sim[i])),
-                    'neighbor_texts': list(map(str, best_text[i])),
-                    'certain_threshold': certain_threshold,
-                    'link': self.arg_dict['link'][arg]
+                    "input_sentence": inp,
+                    "matched_argument": self.arg_dict["argument"][arg],
+                    "enable_resp": self.arg_dict["enable_resp"][arg],
+                    "matched_text": y_text[a],
+                    "matched_arglabel": int(arg),
+                    "similarity": float(sim),
+                    "reply_text": best_passage,
+                    "similarities": list(map(float, neigh_sim[i])),
+                    "neighbor_texts": list(map(str, best_text[i])),
+                    "certain_threshold": certain_threshold,
+                    "link": self.arg_dict["link"][arg],
                 }
 
                 responses.append(resp)
@@ -361,14 +382,14 @@ class ArgMatcher:
 if __name__ == "__main__":
     args = parse_args()
 
-    nlp = spacy.load('en_core_web_lg')
-    nlp.add_pipe('universal_sentence_encoder',
-                 config={'model_name': 'en_use_lg'})
+    nlp = spacy.load("en_core_web_lg")
+    nlp.add_pipe("universal_sentence_encoder", config={"model_name": "en_use_lg"})
 
     if not args.test:
-        argm = ArgMatcher(nlp, './knowledge/myths.csv',
-                          './knowledge/myths_egs.csv', preload=False)
-        print('Finished populating embed dicts, saved to preload_dicts')
+        argm = ArgMatcher(
+            nlp, "./knowledge/myths.csv", "./knowledge/myths_egs.csv", preload=False
+        )
+        print("Finished populating embed dicts, saved to preload_dicts")
     else:
         argm = ArgMatcher(nlp, None, None, preload=True)
         while True:
@@ -378,6 +399,6 @@ if __name__ == "__main__":
 
             # Replacing the newline characters to make printing a little nicer
             for o in output:
-                o['reply_text'] = o['reply_text'].replace('\n', '')
+                o["reply_text"] = o["reply_text"].replace("\n", "")
 
             pprint.pprint(output)

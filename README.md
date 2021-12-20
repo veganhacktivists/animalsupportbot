@@ -48,32 +48,52 @@ This populates `./preload_dicts/` with embeddings for each example for each myth
 
 ## (Step 2) Run reddit bot
 
-To run this step, `./user_info.py` must exist in the repo directory. This contains the secret keys etc. to authenticate with the Reddit API. It looks something like this:
+To run this step, `config.yaml` must exist in the repo directory. This contains the configuration for the classifier, in addition to things like secret keys to authenticate with the Reddit API. It looks something like this:
 
-```py
-USER_INFO = {
-              "client_id":"XXXXXX",
-	      "client_secret":"XXXXX",
-	      "password":"XXXXX",
-	      "user_agent":"XXXXX",
-	      "username":"animalsupportbot"
-	    }								               
+```yaml
+# Classifier options
+threshold: 0.65
+hint_threshold: 0.4
+n_neighbors: 3
+
+# Redditbot options
+refresh_rate: 60
+
+# User Info
+user_info:
+  client_id: "XXXXXXXX"
+  client_secret: "XXXXXXXX"
+  password: "XXXXXXXX"
+  user_agent: "XXXXXXXX"
+  username: "animalsupportbot"
+
+# Whitelisted Subreddits
+whitelisted:
+  - testanimalsupportbot
+  - vegan
+  - debateavegan
+  - vegancirclejerk
+  - veganforcirclejerkers
+  - veganuk
+
+# Blacklisted Subreddits (in addition to defaults)
+blacklisted:
+  - depression
+  - suicidewatch						               
 ```
 
-Once this exists, the reddit bot can be run with the following command:
-
-```sh
-python redditbot.py --refresh-rate <int> --threshold <float> --hint-threshold <float> --n-neighbors <int>
-```
-
-- `refresh_rate` is an `int` that determines how long the bot will sleep for after checking mentions, in seconds.
 - `threshold` is a `float` that determines the minimum similarity score that an input sentence must have to be declared a succesful match.
 - `hint-threshold` is a `float` that determines the minimum similarity score that an input must have to be declared a succesful match **to a hinted argument**.
 - `n-neighbors` is an `int` that determines how many neighbors to consider in the weighted vote argument classification.
 
-The typical command I recommend running is:
+- `refresh_rate` is an `int` that determines how long the bot will sleep for after checking mentions, in seconds.
+- `whitelisted` is a list of subreddits that the bot can respond to comments in
+- `blacklisted` is a list of subreddits that the bot is explicitly stopped from responding to in (`depression,suicidewatch` are both hard-coded in, and not actually required in the config file)
+
+Once this exists, the reddit bot can be run with the following command:
+
 ```sh
-python redditbot.py --refresh-rate 60 --threshold 0.6 --hint-threshold 0.4 --n-neighbors 3
+python redditbot.py
 ```
 
 # Testing the Argument Matcher
