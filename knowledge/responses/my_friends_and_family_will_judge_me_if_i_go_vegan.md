@@ -4,9 +4,9 @@ However, it is important to also note that peer and familial pressure is an incr
 
 Should the judgement of family or friends determine your other ethical stances on things like racism, inequality or the environment? You would hope that the answer is ultimately no, even if that does cause friction. 
 
-And indeed, going vegan is a choice which also happens to supports some of those ethical stances. For example, eliminating animal products can be the single biggest thing an individual can do to help the planet[1]. 
+And indeed, going vegan is a choice which also supports some of those ethical stances. For example, eliminating animal products can be the single biggest thing an individual can do to help the planet[1]. In addition, the meat industry, while not only exploiting animals, also exploits its slaughterhouse workers[2], who suffer from some of the highest rates of PTSD, depression, anxiety, suicide and drug and alcohol abuse in any profession as a result of killing animals every single day[3] - and demographically, are "overwhelmingly made up of people of color, with a large percentage of immigrants and refugees"[4].
 
-In addition, the meat industry, which not only exploits animals, also exploits its slaughterhouse workers[2], who suffer from some of the highest rates of PTSD, depression, anxiety, suicide and drug and alcohol abuse in any profession as a result of killing animals every single day[3] - and demographically, are "overwhelmingly made up of people of color, with a large percentage of immigrants and refugees"[4].
+For ethical choices such as these, it is hard to justify that "peer pressure" alone is a sufficient reason to continue participating in something so unconscionable.
 
 ### References
 
