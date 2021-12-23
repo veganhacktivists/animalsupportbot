@@ -1,10 +1,10 @@
 There is a misconception that vegan food is expensive, and that those who subscribe to this lifestyle are privileged. In any grocery store, the most expensive foods tend to be meat and cheese, while the cheapest foods are beans, rice, potatoes, pasta, lentils, and so forth. This statement is generally true globally, with a public health study showing vegan diets can reduce food costs by up to one third in high income countries[1].
 
-It should also be worth noting that the fastest growing vegan demographic in the US is African Americans[2], despite the fact that nearly 20% of Black people there live in poverty (compared to 7.3% non-hispanic white)[3]. In addition, Americans who earn less than $30,000 are almost twice as likely to be vegan or vegetarian as those who earn more than $75,000[4].
+It should also be worth noting that the fastest growing vegan demographic in the US is African Americans[2], despite the fact that nearly 20% of Black people there live in poverty (compared to 7.3% non-Hispanic white)[3]. In addition, Americans who earn less than $30,000 are almost twice as likely to be vegan or vegetarian as those who earn more than $75,000[4].
 
 So where does this perception that "vegan food is more expensive" come from? One reason may be that vegan food can be more expensive when buying direct substitutes, such as frozen vegan ‘chicken’ nuggets which are still more expensive than non-vegan chicken nuggets. 
 
-This is due to a variety of reasons, including smaller productions due to lower consumer demand and government subsidies toward the animal agriculture industry, which artificially decreases the value of meat and dairy products[2]. More people choosing to go vegan and purchase these vegan products can contribute to wider market share and help lower their costs.
+This is due to a variety of reasons, including smaller productions due to lower consumer demand and government subsidies toward the animal agriculture industry, which artificially decreases the value of meat and dairy products[2]. More people who choose to go vegan and purchase these vegan products can contribute to a wider market share and help lower their costs.
 
 Despite this, veganism does not have to equate to higher costs of food especially on a whole food plant-based diet. After all, production of fruits, beans, and vegetables is much cheaper than any other type of food[1]. The foundation of a good vegan diet is affordable and accessible foods, which are much cheaper than animal products.
 
