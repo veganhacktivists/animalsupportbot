@@ -15,4 +15,4 @@ The overall take from all this is that animals are not a required source of prot
 [3] [Top Vegan Sources of Protein](https://www.medicalnewstoday.com/articles/vegan-protein-chart#vegan-protein-sources)
 [4] [How Meat Causes Inflammation](https://nutritionfacts.org/2012/09/20/why-meat-causes-inflammation/)
 [5] [Sutliffe JT, Wilson LD, de Heer HD, Foster RL, Carnot MJ. C-reactive protein response to a vegan lifestyle intervention. Complement Ther Med. 2015 Feb;23(1):32-7. doi: 10.1016/j.ctim.2014.11.001. Epub 2014 Dec 3. PMID: 25637150.](https://pubmed.ncbi.nlm.nih.gov/25637150/) 
-[6] [Plant Based Proteins Verse Protein From Meat](https://farmacyvegankitchen.com/plant-based-protein-vs-protein-from-meat/)
+[6] [Plant Based Proteins Versus Protein From Meat](https://farmacyvegankitchen.com/plant-based-protein-vs-protein-from-meat/)
