@@ -63,6 +63,11 @@ class ArgMatcher:
             self.arg_dict = pickle.load(open(arg_dict_path, "rb"))
             self.template_dict = pickle.load(open(template_dict_path, "rb"))
 
+        self.key_label_map = OrderedDict(
+            {v: k for k, v in enumerate(self.arg_dict["key"])}
+        )
+        self.label_key_map = OrderedDict({v: k for k, v in self.key_label_map.items()})
+
         self.eye = np.eye(len(self.arg_dict["argument"]) + 1)
         self.clf = KNeighborsClassifier(
             n_neighbors=self.n_neighbors, weights="distance", metric="cosine"
@@ -108,6 +113,7 @@ class ArgMatcher:
         """
         self.arg_dict = OrderedDict(
             {
+                "key": [],
                 "argument": [],
                 "text": [],
                 "full_comment": [],
@@ -118,6 +124,7 @@ class ArgMatcher:
         )
 
         for i, arg in enumerate(self.myth_dict):
+            self.arg_dict["key"].append(arg)
             self.arg_dict["argument"].append(self.myth_dict[arg]["title"])
             self.arg_dict["text"].append(self.myth_dict[arg]["text"])
             self.arg_dict["full_comment"].append(self.myth_dict[arg]["full_comment"])
@@ -377,6 +384,47 @@ class ArgMatcher:
                 responses.append(resp)
 
         return responses
+
+    def match_batch_text(
+        self, texts, threshold=0.5, N_neighbors=1, certain_threshold=0.9
+    ):
+        """
+        !Eval Use Only!
+
+        Match list of text in a batch, return matched labels
+        """
+        X = []
+        for t in tqdm(texts):
+            processed_t = str(self.prefilter(t))
+            X.append(self.nlp(processed_t).vector)
+
+        X = np.array(X)  # (N, embedding_dim)
+        y = self.template_dict["labels"]  # Num classes
+
+        # Both neigh_dist, neigh_sim (N, N_neighbors)
+        neigh_dist, neigh_ind = self.clf.kneighbors(
+            X, n_neighbors=N_neighbors, return_distance=True
+        )
+
+        neigh_sim = 1 - neigh_dist
+        best_cs_labels = y[neigh_ind]
+        best_cs_labels_oh = self.eye[best_cs_labels]  # onehot
+        weighted_vote = np.expand_dims(neigh_sim, -1) * best_cs_labels_oh
+        weighted_vote = np.argmax(np.sum(weighted_vote, axis=1), -1)
+
+        # Exampoles where similarity is above certainty threshold
+        # Shape: (N)
+        certain_examples = np.max(neigh_sim, axis=-1) >= certain_threshold
+        certain_labels = y[np.argmax(neigh_sim, axis=-1)]  # (N,)
+
+        # Combine certain examples with weighted ones
+        # Zeroes out relevant values, and then recombines
+        cert_preds = certain_examples.astype(int) * certain_labels
+        weight_preds = (1 - certain_examples.astype(int)) * weighted_vote
+
+        # TODO: Change predictions below threshold to class 0 (_na_)
+        out = cert_preds + weight_preds
+        return out
 
 
 if __name__ == "__main__":

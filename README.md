@@ -181,3 +181,27 @@ examples:
 The responses are all stored in `.md` files in `knowledge/responses`. These should be written in the markdown style that Reddit uses.
 
 
+# Performance Evaluation
+
+Performance metrics for the bot can be obtained by using `eval.py`. If it has not been done before (or if changes to the knowledge base have been made), the pre-computed embeddings should be repopulated using:
+
+```sh
+python argmatcher.py
+```
+
+A test data `csv` file can then be evaluated by running something like the following command:
+
+```sh
+python eval.py --eval-csv <test_data.csv> --n-neighbors 3 --threshold 0.5 --certain-threshold 0.9
+```
+
+This `test_data.csv` should be a two column comma separated file with the headings: `text, label`. An example of such a file can be found [here](https://gist.githubusercontent.com/cvqluu/df0323b68f17bc255d546d4c6865e9fd/raw/a5f601d7a23101afd6f97c23a0798b227921d20c/antiveg_comments.csv).
+
+The output of this script will provide the following outputs, which are a mix of metrics, figures, and other useful information:
+
+- Balanced accuracy
+- (TODO) Per-class recall/precision
+- (TODO) Confusion matrix
+- (TODO) Separated lists of examples
+  - Misclassified examples (with incorrect class and incorrect neighbor matched)
+  - Correctly classified examples
