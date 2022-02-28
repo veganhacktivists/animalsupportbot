@@ -6,7 +6,7 @@ PETA's blitz-style campaigns often draws negative publicity to their targets, an
 
 Jonathan Safran Foer, in his book Eating Animals, says: _"Whatever one thinks of them, no organization strikes fear in the factory farm industry and its allies more than PETA. They are effective. When PETA targeted fast-food companies, the most famous and powerful welfare scientist in the country, Temple Grandin (who has designed more than half the cattle slaughter facilities in the nation), said she saw more improvement in welfare in one year than she had seen in her entire thirty-year career previously. Arguably the biggest PETA hater on the planet, Steve Kopperud (a meat industry consultant who has given anti-PETA seminars for a decade), puts it this way: “There’s enough understanding in the industry now of what PETA’s capable of to put the fear of God into many executives.” It didn’t surprise me to learn that companies of all kinds regularly negotiate with PETA and quietly make changes in their animal welfare policies to avoid being publicly targeted by the group."_ 
 
-###REFERENCES:<br>
+<b>References</b>:<br>
 [1] <a href="https://www.thecut.com/2018/10/has-peta-finally-won-the-war-against-fur.html">Has PETA Finally Won the War against Fur?</a><br>
 [2] <a href="https://www.sourcewatch.org/index.php/Richard_Berman_cares_about_animals:_clients_exposed">PetaKillsAnimals.com was created by the Center for Consumer Freedom (CCF)</a><br>
 [3]<a href="https://www.peta.org/blog/euthanasia"> Why We Euthanize</a><br>
