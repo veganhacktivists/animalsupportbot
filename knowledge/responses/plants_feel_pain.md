@@ -1,7 +1,14 @@
-A plant lacks a central nervous system, pain receptors and a brain which means that anatomically they don’t have the ability to feel pain. If we also consider that the primary reason human and non-human animals feel pain is to alert us that we are in danger or are being hurt and that we need to escape the situation that we are in, a plant cannot move and thus any pain would be inescapable, making life torturous for any plant. Which begs the question, why would plants ever evolve such a horribly debilitating and destructive characteristic, as it goes against the fundamental purpose of evolution? 
+A plant lacks a central nervous system, pain receptors, and a brain which means that anatomically they do not have the ability to feel pain [1]. Therefore, when we pull plants up from the ground, they cannot process any pain associated with our act of harvesting them. Reasonable people understand that slicing the neck of a cow is in no way comparable to cutting the stems off a broccoli. Likewise, castrating a pig is not similar to peeling a potato.
 
-If we move past the science of whether or not plants feel pain and concentrate on the ethics of the excuse, I am doubtful that anyone truly believes that dropping a cauliflower into boiling water and boiling chickens alive (something that often happens in the chicken slaughtering process) is the same thing. Nobody thinks that slicing the neck of a cow is similar to cutting the stems off a broccoli, or castrating a pig is similar to peeling a potato.
+Looking at animal agriculture data, it takes an estimated seven kilograms of plant feed to create one kilogram of meat [2]. The result is that more plants are killed in the production of animal products than they are in the production of vegan products [3]. Additionally, up to 91% of Amazon rainforest destruction is due to animal agriculture [4], meaning that millions of trees have been and continue to be destroyed because of our consumption of animal products.
 
-If you are determined that plants feel pain like animals do - it takes up to 16 kilograms of plants to create 1 kilogram of animal flesh, meaning vastly more plants are killed in the production of animal products than they are vegan products. On top of this it’s important to note that up to 91% of Amazon rainforest destruction is due to animal agriculture, meaning that millions of trees have been and continue to be destroyed because of our consumption of animal products. 
+If someone honestly believes that plants feel pain, then (by their logic) the consumption of animals is not only causing the suffering of animals, but also causing the alleged suffering of a great number of plants.
 
-So if you truly believe that plants feel pain and are sentient, then by consuming non-vegan products you are not only causing the suffering of animals but also causing the alleged suffering of huge amounts of plants as well. 
+### References 
+[1] [Petruzzello, M. Do Plants Feel Pain? Encyclopedia Britannica.](https://www.britannica.com/story/do-plants-feel-pain)
+
+[2] [Aiking, H. Future protein supply. Trends Food Sci Technol. 2011.](https://www.sciencedirect.com/science/article/abs/pii/S092422441000107X?via%3Dihub)
+
+[3] [Ritchie, H. Half of the world’s habitable land is used for agriculture. Our World in Data. 2019.](https://ourworldindata.org/global-land-for-agriculture)
+
+[4] [Margulis, Sergio. Causes of Deforestation of the Brazilian Amazon. Chapter 2. Deforestation and Land Use in Amazonia: Evidence of Large Scale Cattle Ranching. World Bank Working Paper No. 22. Published 2004.](https://documents1.worldbank.org/curated/en/758171468768828889/pdf/277150PAPER0wbwp0no1022.pdf)
