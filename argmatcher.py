@@ -164,9 +164,10 @@ class ArgMatcher:
 
             for text in self.arg_dict["examples"][i]:
                 # Argument examples
-                template_embeds.append(self.nlp(text).vector)
-                template_text.append(text)
-                template_labels.append(i)
+                if text:
+                    template_embeds.append(self.nlp(text).vector)
+                    template_text.append(text)
+                    template_labels.append(i)
 
         self.template_dict = OrderedDict({})
         self.template_dict["embeds"] = np.array(template_embeds)  # X
