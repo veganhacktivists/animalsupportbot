@@ -11,4 +11,4 @@ Jonathan Safran Foer, in his book Eating Animals, says: "Whatever one thinks of 
 [2] <a href="https://www.sourcewatch.org/index.php/Richard_Berman_cares_about_animals:_clients_exposed">PetaKillsAnimals.com was created by the Center for Consumer Freedom (CCF)</a><br>
 [3]<a href="https://www.peta.org/blog/euthanasia"> Why We Euthanize</a><br>
 [4] <a href="https://www.peta.org/about-peta/victories/">See Our Latest Victories</a><br>
-[5] FROER, Jonathan Safran - <a href="https://www.abebooks.com/9780241143933/Eating-Animals-Foer-Jonathan-Safran-0241143934/plp">Eating Animals</a>, 2010
+[5] [Jonathan Safran Froer, Eating Animals](https://www.littlebrown.com/titles/jonathan-safran-foer/eating-animals/9780316086646/)
