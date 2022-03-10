@@ -7,9 +7,8 @@ This file contains the templates for responses used in redditbot.py
 END_TEMPLATE = """
 \n *** \n This was an automatically generated response based on the idea(s)/myth(s): \n\n {} \n\n
 \n *** \n
-*(Responses taken from vegan advocates like [Earthling Ed](https://www.youtube.com/channel/UCVRrGAcUc7cblUzOhI1KfFg) and our community contributors)* \n\n
-*If you would like to contribute to the responses this bot can match to, please take a look at the [animalsupportbot GitHub repo](https://github.com/veganhacktivists/animalsupportbot)* \n\n
-**[Vegan Hacktivists](https://veganhacktivists.org/), [Vegan Bootcamp](https://veganbootcamp.org/)**
+*If you would like to contribute to the bot, please take a look at the GitHub repo: [veganhacktivists/animalsupportbot](https://github.com/veganhacktivists/animalsupportbot)* \n\n
+Learn more at **[WatchDominion](https://watchdominion.org/), [Vegan Bootcamp](https://vbcamp.org/04eed1)**
 """
 
 # Respond to mention with this comment when bot fails
