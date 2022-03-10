@@ -253,10 +253,6 @@ class MentionsBot:
                             arg_labels = arg_labels - r_arg_labels
 
                             if arg_labels:
-                                r_arglabels = set(
-                                    [r["matched_arglabel"] for r in resps]
-                                )
-
                                 hinted_resps = self.argmatch.match_text(
                                     input_text,
                                     arg_labels=arg_labels,
@@ -270,7 +266,7 @@ class MentionsBot:
                                         # This means the sentence was matched up already with better similarity
                                         continue
                                     else:
-                                        resps += r
+                                        resps.append(r)
 
                     else:
                         resps = []
