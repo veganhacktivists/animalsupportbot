@@ -5,10 +5,10 @@ This file contains the templates for responses used in redditbot.py
 # End of the response template
 ## Contains 1 formattable field (for link references)
 END_TEMPLATE = """
+Learn more at **[WatchDominion](https://watchdominion.org/), [Vegan Bootcamp](https://vbcamp.org/04eed1)**
 \n *** \n This was an automatically generated response based on the idea(s)/myth(s): \n\n {} \n\n
 \n *** \n
 *If you would like to contribute to the bot, please take a look at the GitHub repo: [veganhacktivists/animalsupportbot](https://github.com/veganhacktivists/animalsupportbot)* \n\n
-Learn more at **[WatchDominion](https://watchdominion.org/), [Vegan Bootcamp](https://vbcamp.org/04eed1)**
 """
 
 # Respond to mention with this comment when bot fails
