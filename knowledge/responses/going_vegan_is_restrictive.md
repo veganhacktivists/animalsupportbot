@@ -10,7 +10,7 @@ At the end of the day, going vegan is an ethically grounded choice that tries to
 
 An excellent resource for doing so can be found at [Vegan Bootcamp](https://veganbootcamp.org/), which provides all the resources needed to start making that change.
 
-### Reference
+### References
 
 [1] [A Guide to a Plant Based Diet with Food Allergies - Forbes.com](https://www.forbes.com/sites/laurajames/2019/08/27/a-guide-to-a-plant-based-diet-with-food-allergies/)
 
