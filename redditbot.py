@@ -145,7 +145,10 @@ class MentionsBot:
             quotes = "".join(
                 [">{} \n\n".format(q) for q in args[arg]["quotes"]]
             ) + "> ^(({})^) \n\n".format(self.alphabet[i])
-            passage = args[arg]["passage"] + "\n\n --- \n\n"
+            passage = args[arg]["passage"]
+            if i < len(args) - 1:
+                # Only add dividers between args
+                passage += "\n\n --- \n\n"
             parts.append(quotes)
             parts.append(passage)
             if validators.url(link):
