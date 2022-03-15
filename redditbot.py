@@ -130,7 +130,7 @@ class MentionsBot:
             link = r["link"]
 
             if arg not in args:
-                args[arg] = {"passage": passage, "quotes": [inp], "sim": sim}
+                args[arg] = {"passage": passage, "quotes": [inp], "sim": sim, "link": link}
             else:
                 args[arg]["quotes"].append(inp)
                 if args[arg]["sim"] < sim:
@@ -151,6 +151,7 @@ class MentionsBot:
             parts.append(quotes)
             parts.append(passage)
             arglist = "({}): {}".format(self.alphabet[i], arg)
+            link = args[arg]["link"]
             if validators.url(link):
                 arglist = "[({}): {}]({})".format(self.alphabet[i], arg, link)
 
