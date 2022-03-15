@@ -138,10 +138,9 @@ class MentionsBot:
                     args[arg]["sim"] = sim
                     args[arg]["passage"] = passage
 
-        parts = []
-        arglist = []
-
+        replies = []
         for i, arg in enumerate(args):
+            parts = []
             quotes = "".join(
                 [">{} \n\n".format(q) for q in args[arg]["quotes"]]
             ) + "> ^(({})^) \n\n".format(self.alphabet[i])
@@ -151,13 +150,13 @@ class MentionsBot:
                 passage += "\n\n --- \n\n"
             parts.append(quotes)
             parts.append(passage)
+            arglist = "({}): {}".format(self.alphabet[i], arg)
             if validators.url(link):
-                arglist.append("[({}): {}]({})".format(self.alphabet[i], arg, link))
-            else:
-                arglist.append("({}): {}".format(self.alphabet[i], arg))
+                arglist = "[({}): {}]({})".format(self.alphabet[i], arg, link)
 
-        parts.append(self.END_TEMPLATE.format(", ".join(arglist)))
-        return "\n".join(parts)
+            parts.append(self.END_TEMPLATE.format(arglist))
+            replies.append("\n".join(parts))
+        return replies
 
     def reply_mentions(self, limit=None):
         """
@@ -277,19 +276,19 @@ class MentionsBot:
                     reply_info["responses"] = resps
 
                     if resps:  # Found arg match(es)
-                        formatted_response = self.format_response(resps)
-                        reply_info["full_reply"] = formatted_response
+                        formatted_responses = self.format_response(resps)
+                        reply_info["full_reply"] = formatted_responses
 
-                        try:
-                            reply = parent.reply(formatted_response)
-                            print(formatted_response)
-                            reply_info["outcome"] = "Replied with matched argument(s)"
-                            reply_info["reply_id"] = reply.id
-                        except prawcore.exceptions.Forbidden:
-                            reply = None
-                            reply_info[
-                                "outcome"
-                            ] = "Found arguments but failed to reply: Forbidden"
+                        for response in formatted_responses:
+                            try:
+                                reply = parent.reply(response)
+                                print(response)
+                                reply_info["outcome"] = "Replied with matched argument(s)"
+                                reply_info["reply_id"] = reply.id
+                            except prawcore.exceptions.Forbidden:
+                                reply_info[
+                                    "outcome"
+                                ] = "Found arguments but failed to reply: Forbidden"
 
                     else:  # Failed to find arg match
                         mention.reply(self.FAILURE_COMMENT)
