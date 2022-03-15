@@ -224,6 +224,7 @@ class MentionsBot:
                     reply_info["input_text"] = input_text
 
                     if input_text:
+                        input_text = self.replace_newlines(input_text)
                         mention_hints = self.remove_usernames(mention.body).replace(
                             ",", "."
                         )
@@ -345,6 +346,13 @@ class MentionsBot:
         newtext = re.sub("\/u\/[A-Za-z0-9_-]+", "", text)
         newtext = re.sub("u\/[A-Za-z0-9_-]+", "", newtext)
         return newtext
+
+    @staticmethod
+    def replace_newlines(text):
+        """
+        Replaces newline symbols with periods
+        """
+        return text.replace("\n", ". ")
 
 
 if __name__ == "__main__":
