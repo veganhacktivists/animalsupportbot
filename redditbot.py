@@ -216,7 +216,7 @@ class MentionsBot:
                         if isinstance(parent, Comment):
                             input_text = self.remove_usernames(parent.body)
                         elif isinstance(parent, Submission):
-                            input_text = self.remove_usernames(" ".join([parent.title, ".", parent.selftext]))
+                            input_text = self.remove_usernames(".".join([parent.title, parent.selftext]))
                         else:
                             input_text = None
                     except:
