@@ -5,3 +5,4 @@ gdrive-keyfile.json
 .vscode
 log_db.json
 config.yaml
+eval_logs/

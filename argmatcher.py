@@ -63,9 +63,12 @@ class ArgMatcher:
             self.arg_dict = pickle.load(open(arg_dict_path, "rb"))
             self.template_dict = pickle.load(open(template_dict_path, "rb"))
 
+        # Mapping of encoded label to text
+        # E.g. {plants_feel_pain: 4}
         self.key_label_map = OrderedDict(
             {v: k for k, v in enumerate(self.arg_dict["key"])}
         )
+        # E.g. {4: plants_feel_pain}
         self.label_key_map = OrderedDict({v: k for k, v in self.key_label_map.items()})
 
         self.eye = np.eye(len(self.arg_dict["argument"]) + 1)
