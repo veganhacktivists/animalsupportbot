@@ -130,7 +130,12 @@ class MentionsBot:
             link = r["link"]
 
             if arg not in args:
-                args[arg] = {"passage": passage, "quotes": [inp], "sim": sim, "link": link}
+                args[arg] = {
+                    "passage": passage,
+                    "quotes": [inp],
+                    "sim": sim,
+                    "link": link,
+                }
             else:
                 args[arg]["quotes"].append(inp)
                 if args[arg]["sim"] < sim:
@@ -216,7 +221,9 @@ class MentionsBot:
                         if isinstance(parent, Comment):
                             input_text = self.remove_usernames(parent.body)
                         elif isinstance(parent, Submission):
-                            input_text = self.remove_usernames(".".join([parent.title, parent.selftext]))
+                            input_text = self.remove_usernames(
+                                ".".join([parent.title, parent.selftext])
+                            )
                         else:
                             input_text = None
                     except:
@@ -285,7 +292,9 @@ class MentionsBot:
                             try:
                                 reply = parent.reply(response)
                                 print(response)
-                                reply_info["outcome"] = "Replied with matched argument(s)"
+                                reply_info[
+                                    "outcome"
+                                ] = "Replied with matched argument(s)"
                                 reply_info["reply_id"] = reply.id
                             except prawcore.exceptions.Forbidden:
                                 reply_info[
