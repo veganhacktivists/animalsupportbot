@@ -14,7 +14,7 @@ Learn more at **[WatchDominion](https://watchdominion.org/), [Vegan Bootcamp](ht
 # Respond to mention with this comment when bot fails
 ## No forrmattable fields
 FAILURE_COMMENT = """
-Sorry, we couldn't quite match up this comment to one of our counter-arguments.
+We're sorry! We scanned the post you replied to but didn't find any matching phrases that we could respond to.
 
 If you think it should have responded differently, raise this as an issue on the [GitHub repo](https://github.com/veganhacktivists/animalsupportbot/issues).
 """
