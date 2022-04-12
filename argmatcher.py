@@ -417,7 +417,6 @@ class ArgMatcher:
         weighted_vote = np.argmax(np.sum(weighted_vote, axis=1), -1)
 
         # Get the top 1 prediction
-        neigh_eye = np.eye(N_neighbors)
         top1 = y[neigh_ind[:, 0]]
 
         # Get indexes of examples which meet certainty thresh
