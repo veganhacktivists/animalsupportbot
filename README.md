@@ -197,11 +197,15 @@ python eval.py --eval-csv <test_data.csv> --n-neighbors 3 --threshold 0.5 --cert
 
 This `test_data.csv` should be a two column comma separated file with the headings: `text, label`. An example of such a file can be found [here](https://gist.githubusercontent.com/cvqluu/df0323b68f17bc255d546d4c6865e9fd/raw/a5f601d7a23101afd6f97c23a0798b227921d20c/antiveg_comments.csv).
 
-The output of this script will provide the following outputs, which are a mix of metrics, figures, and other useful information:
+This script will provide the following outputs in a unique `eval_logs/<eval_run_id>/` folder:
 
-- Balanced accuracy
-- (TODO) Per-class recall/precision
-- (TODO) Confusion matrix
-- (TODO) Separated lists of examples
-  - Misclassified examples (with incorrect class and incorrect neighbor matched)
-  - Correctly classified examples
+- Results summary: `results.csv`
+  - Balanced accuracy
+  - Averaged Precision and Recall
+    - `"micro", "macro", "weighted"`: See [sklearn-docs](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_fscore_support.html#sklearn.metrics.precision_recall_fscore_support)
+- Confusion matrices:
+  - `cm_true.png`: Normalized by true label (diagonal is per-class precision)
+  - `cm_pred.png`: Normalized by pred label (diagonal is per-class recall)
+  - `cm_none.png`: Un-normalized
+- Every example evaluated: `raw_results.csv`:
+  - Contains predicted label, true label
