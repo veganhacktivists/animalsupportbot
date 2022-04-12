@@ -416,18 +416,23 @@ class ArgMatcher:
         weighted_vote = np.expand_dims(neigh_sim, -1) * best_cs_labels_oh
         weighted_vote = np.argmax(np.sum(weighted_vote, axis=1), -1)
 
-        # Exampoles where similarity is above certainty threshold
-        # Shape: (N)
-        certain_examples = np.max(neigh_sim, axis=-1) >= certain_threshold
-        certain_labels = y[np.argmax(neigh_sim, axis=-1)]  # (N,)
+        # Get the top 1 prediction
+        neigh_eye = np.eye(N_neighbors)
+        top1 = y[neigh_ind[:, 0]]
+
+        # Get indexes of examples which meet certainty thresh
+        certain_indexes = np.max(neigh_sim, axis=-1) >= certain_threshold
 
         # Combine certain examples with weighted ones
         # Zeroes out relevant values, and then recombines
-        cert_preds = certain_examples.astype(int) * certain_labels
-        weight_preds = (1 - certain_examples.astype(int)) * weighted_vote
-
-        # TODO: Change predictions below threshold to class 0 (_na_)
+        cert_preds = certain_indexes.astype(int) * top1
+        weight_preds = (1 - certain_indexes.astype(int)) * weighted_vote
         out = cert_preds + weight_preds
+
+        # Finally, zero out examples which don't meet threshold condition
+        # This turns the prediction to _na_
+        below_thresh_indexes = np.max(neigh_sim, axis=-1) >= threshold
+        out = out * below_thresh_indexes.astype(int)
         return out
 
 

@@ -14,6 +14,7 @@ from sklearn.metrics import (
     balanced_accuracy_score,
     confusion_matrix,
     ConfusionMatrixDisplay,
+    precision_recall_fscore_support,
 )
 
 
@@ -97,6 +98,7 @@ def _filter_data(df, argm):
 
     new_len = len(reduced_df)
 
+    print(f"Training set size is {len(train_texts)}")
     print(f"Reduced dataframe from {original_len} -> {new_len}")
     assert new_len != 0, "After filtering out bad rows, dataframe had 0 rows"
 
@@ -136,8 +138,7 @@ def evaluate_model(
     lookup = lambda x: argm.key_label_map[x]
     true_labels_enc = np.array(list(map(lookup, labels)))
 
-    bal_acc = balanced_accuracy_score(true_labels_enc, pred_labels_enc)
-    return bal_acc, pred_labels_enc, true_labels_enc
+    return pred_labels_enc, true_labels_enc
 
 
 def log_eval_results(log_folder, argm, texts, pred_labels_enc, true_labels_enc):
@@ -158,7 +159,22 @@ def log_eval_results(log_folder, argm, texts, pred_labels_enc, true_labels_enc):
     raw_results_df.to_csv(os.path.join(log_folder, "raw_results.csv"), index=False)
 
     ## Make small results output with single value metrics
-    # TODO
+    results_df = pd.DataFrame()
+    bal_acc = balanced_accuracy_score(true_labels_enc, pred_labels_enc)
+    results_df["Balanced Accuracy"] = [bal_acc]
+
+    for avg_method in ["micro", "macro", "weighted"]:
+        precision, recall, _, _ = precision_recall_fscore_support(
+            true_labels_enc, pred_labels_enc, average=avg_method, zero_division=0
+        )
+        results_df[f"Precision ({avg_method})"] = precision
+        results_df[f"Recall ({avg_method})"] = recall
+
+    results_df = results_df.T
+    results_df.to_csv(os.path.join(log_folder, "results.csv"), header=False)
+    print("\n")
+    print(results_df)
+    print("\n")
 
     ## Plot confusion matrices
     # Get label ordering, removing missing args
@@ -166,9 +182,10 @@ def log_eval_results(log_folder, argm, texts, pred_labels_enc, true_labels_enc):
     label_ordering = [l for l in label_ordering if l in set(true_labels_enc)]
     display_labels = [arglookup(l) for l in label_ordering]
 
-    make_confusion_matrices(
+    cm_pred, cm_true, cm_none = make_confusion_matrices(
         true_labels_enc, pred_labels_enc, label_ordering, display_labels, log_folder
     )
+    print(f"Results output to {log_folder}")
 
 
 def make_confusion_matrices(y_true, y_pred, label_ordering, display_labels, outfolder):
@@ -186,6 +203,8 @@ def make_confusion_matrices(y_true, y_pred, label_ordering, display_labels, outf
         disp.plot(ax=ax, xticks_rotation="vertical", colorbar=True)
         plt.tight_layout()
         fig.savefig(os.path.join(outfolder, f"cm_{k}.png"), transparent=False)
+
+    return cm_pred, cm_true, cm_none
 
 
 if __name__ == "__main__":
@@ -207,7 +226,7 @@ if __name__ == "__main__":
         certain_threshold: {args.certain_threshold}"
     )
 
-    bal_acc, pred_labels_enc, true_labels_enc = evaluate_model(
+    pred_labels_enc, true_labels_enc = evaluate_model(
         argm,
         texts,
         labels,
@@ -215,12 +234,11 @@ if __name__ == "__main__":
         threshold=args.threshold,
         certain_threshold=args.certain_threshold,
     )
-    print(f"Balanced accuracy is: {bal_acc}")
 
     os.makedirs("./eval_logs/", exist_ok=True)
 
     ename = os.path.splitext(os.path.basename(eval_data))[0]
-    ctime = datetime.now().strftime("%H-%M-%d-%m-%Y")
+    ctime = datetime.now().strftime("%d-%m-%Y-%H-%M")
     log_folder = os.path.join("./eval_logs/", f"{ename}_{ctime}")
     os.makedirs(log_folder, exist_ok=True)
 
