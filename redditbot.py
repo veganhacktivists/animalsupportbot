@@ -37,15 +37,26 @@ def load_myth_links(file):
 
 class MentionsBot:
     def __init__(
-        self, argmatch, config, db, threshold=0.6, n_neighbors=1, hint_threshold=0.4
+        self,
+        argmatch,
+        config,
+        db,
     ):
         self.config = config
         self.reddit = praw.Reddit(check_for_async=False, **config["user_info"])
         self.inbox = praw.models.Inbox(self.reddit, _data={})
         self.argmatch = argmatch
-        self.threshold = threshold
-        self.hint_threshold = hint_threshold
-        self.n_neighbors = n_neighbors
+
+        ## Config/Thresholds for standard matching
+        self.n_neighbors = int(config["n_neighbors"])
+        self.threshold = float(config["threshold"])
+        self.certain_threshold = float(config["certain_threshold"])
+
+        ## Config/Thresholds for matching with a hint
+        self.hint_n_neighbors = int(config["hint_n_neighbors"])
+        self.hint_arg_threshold = float(config["hint_arg_threshold"])
+        self.hint_threshold = float(config["hint_threshold"])
+        self.hint_certain_threshold = float(config["hint_certain_threshold"])
 
         self.whitelisted_subreddits = set(config["whitelisted"])
         self.blacklisted_subreddits = set(["suicidewatch", "depression"]).union(
@@ -239,6 +250,7 @@ class MentionsBot:
                         resps = self.argmatch.match_text(
                             input_text,
                             threshold=self.threshold,
+                            certain_threshold=self.certain_threshold,
                             N_neighbors=self.n_neighbors,
                         )
 
@@ -246,9 +258,13 @@ class MentionsBot:
                             # Use mention hints to match arguments
                             reply_info["mention_hints"] = mention_hints
 
+                            # This step looks at the mention hint, and gets the arglabels hinted
+                            # Hint arg threshold is low since we expect hint to be obvious
+                            # TODO: look into matching only with argument titles
                             hint_resps = self.argmatch.match_text(
                                 mention_hints,
-                                threshold=self.hint_threshold,
+                                threshold=self.hint_arg_threshold,
+                                certain_threshold=0.9,  # Irrelevant as N_neighbors=1
                                 N_neighbors=1,
                                 return_reply=False,
                             )
@@ -264,17 +280,25 @@ class MentionsBot:
                             arg_labels = arg_labels - r_arg_labels
 
                             if arg_labels:
+                                # Pass arg_labels to match_text, restricting to hinted args
                                 hinted_resps = self.argmatch.match_text(
                                     input_text,
                                     arg_labels=arg_labels,
                                     threshold=self.hint_threshold,
-                                    N_neighbors=self.n_neighbors,
+                                    certain_threshold=self.hint_certain_threshold,
+                                    N_neighbors=self.hint_n_neighbors,
                                 )
-                                rsents = [r["input_sentence"] for r in resps]
 
-                                for r in hinted_resps:
-                                    if r["input_sentence"] in rsents:
-                                        # This means the sentence was matched up already with better similarity
+                                # Adds remaining responses to hinted ones
+                                # Skips if matched to a hinted arg
+                                oldresps = resps
+                                resps = hinted_resps
+                                hinted_sents = [
+                                    r["input_sentence"] for r in hinted_resps
+                                ]
+                                for r in oldresps:
+                                    if r["input_sentence"] in hinted_sents:
+                                        # This means the sentence was matched up to a hint
                                         continue
                                     else:
                                         resps.append(r)
@@ -369,10 +393,6 @@ if __name__ == "__main__":
     config = load_config_yaml("./config.yaml")
     pprint(config)
 
-    threshold = float(config["threshold"])
-    hint_threshold = float(config["hint_threshold"])
-    n_neighbors = int(config["n_neighbors"])
-
     refresh_rate = int(config["refresh_rate"])
 
     nlp = spacy.load("en_core_web_lg")
@@ -385,9 +405,6 @@ if __name__ == "__main__":
         argm,
         config,
         db,
-        threshold=threshold,
-        hint_threshold=hint_threshold,
-        n_neighbors=n_neighbors,
     )
 
     mb.run(refresh_rate=refresh_rate)

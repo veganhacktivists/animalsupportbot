@@ -51,10 +51,16 @@ This populates `./preload_dicts/` with embeddings for each example for each myth
 To run this step, `config.yaml` must exist in the repo directory. This contains the configuration for the classifier, in addition to things like secret keys to authenticate with the Reddit API. It looks something like this:
 
 ```yaml
-# Classifier options
-threshold: 0.65
-hint_threshold: 0.4
+# Matching options
+threshold: 0.8
+certain_threshold: 0.9
 n_neighbors: 3
+
+# Hint matching options
+hint_arg_threshold: 0.3
+hint_threshold: 0.4
+hint_certain_threshold: 0.8
+hint_n_neighbors: 7
 
 # Redditbot options
 refresh_rate: 60
@@ -79,12 +85,16 @@ whitelisted:
 # Blacklisted Subreddits (in addition to defaults)
 blacklisted:
   - depression
-  - suicidewatch						               
+  - suicidewatch				               
 ```
 
 - `threshold` is a `float` that determines the minimum similarity score that an input sentence must have to be declared a succesful match.
-- `hint-threshold` is a `float` that determines the minimum similarity score that an input must have to be declared a succesful match **to a hinted argument**.
-- `n-neighbors` is an `int` that determines how many neighbors to consider in the weighted vote argument classification.
+- `certain_threshold` is a `float` which determines the similarity score above which the top-1 neighbor is selected, over a weighted vote.
+- `n_neighbors` is an `int` that determines how many neighbors to consider in the weighted vote argument classification.
+
+- `hint_arg_threshold` is a `float` that determines the similarity score that the mention text must have to be matched with an argument.
+- `hint_threshold` is a `float` that determines the minimum similarity score that a sentence must have to be declared a succesful match **to a hinted argument**.
+- `hint_certain_threshold` and `hint_n_neighbors` are the same as above, except for hinted argument matching.
 
 - `refresh_rate` is an `int` that determines how long the bot will sleep for after checking mentions, in seconds.
 - `whitelisted` is a list of subreddits that the bot can respond to comments in

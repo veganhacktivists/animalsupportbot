@@ -1,7 +1,13 @@
-# Classifier options
-threshold: 0.65
-hint_threshold: 0.4
+# Matching options
+threshold: 0.8
+certain_threshold: 0.9
 n_neighbors: 3
+
+# Hint matching options
+hint_arg_threshold: 0.3
+hint_threshold: 0.4
+hint_certain_threshold: 0.8
+hint_n_neighbors: 7
 
 # Redditbot options
 refresh_rate: 60
