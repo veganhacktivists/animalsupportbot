@@ -63,9 +63,12 @@ class ArgMatcher:
             self.arg_dict = pickle.load(open(arg_dict_path, "rb"))
             self.template_dict = pickle.load(open(template_dict_path, "rb"))
 
+        # Mapping of encoded label to text
+        # E.g. {plants_feel_pain: 4}
         self.key_label_map = OrderedDict(
             {v: k for k, v in enumerate(self.arg_dict["key"])}
         )
+        # E.g. {4: plants_feel_pain}
         self.label_key_map = OrderedDict({v: k for k, v in self.key_label_map.items()})
 
         self.eye = np.eye(len(self.arg_dict["argument"]) + 1)
@@ -413,18 +416,22 @@ class ArgMatcher:
         weighted_vote = np.expand_dims(neigh_sim, -1) * best_cs_labels_oh
         weighted_vote = np.argmax(np.sum(weighted_vote, axis=1), -1)
 
-        # Exampoles where similarity is above certainty threshold
-        # Shape: (N)
-        certain_examples = np.max(neigh_sim, axis=-1) >= certain_threshold
-        certain_labels = y[np.argmax(neigh_sim, axis=-1)]  # (N,)
+        # Get the top 1 prediction
+        top1 = y[neigh_ind[:, 0]]
+
+        # Get indexes of examples which meet certainty thresh
+        certain_indexes = np.max(neigh_sim, axis=-1) >= certain_threshold
 
         # Combine certain examples with weighted ones
         # Zeroes out relevant values, and then recombines
-        cert_preds = certain_examples.astype(int) * certain_labels
-        weight_preds = (1 - certain_examples.astype(int)) * weighted_vote
-
-        # TODO: Change predictions below threshold to class 0 (_na_)
+        cert_preds = certain_indexes.astype(int) * top1
+        weight_preds = (1 - certain_indexes.astype(int)) * weighted_vote
         out = cert_preds + weight_preds
+
+        # Finally, zero out examples which don't meet threshold condition
+        # This turns the prediction to _na_
+        below_thresh_indexes = np.max(neigh_sim, axis=-1) >= threshold
+        out = out * below_thresh_indexes.astype(int)
         return out
 
 
