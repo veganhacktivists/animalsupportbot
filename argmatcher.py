@@ -311,10 +311,6 @@ class ArgMatcher:
         else:
             # Getting neighbors with only arg_labels as candidates
             # This is quite inefficient: TODO: clean this up
-            mini_clf = KNeighborsClassifier(
-                n_neighbors=N_neighbors, weights="distance", metric="cosine"
-            )
-
             X_train = self.template_dict["embeds"]
             y_train = self.template_dict["labels"]
             y_text = self.template_dict["text"]
@@ -324,7 +320,15 @@ class ArgMatcher:
             y = y_train[mask]
             y_text = y_text[mask]
 
+            mini_clf = KNeighborsClassifier(
+                n_neighbors=N_neighbors, weights="distance", metric="cosine"
+            )
+
             mini_clf.fit(X, y)
+
+            if mini_clf.n_samples_fit_ < N_neighbors:
+                # Reduce N_neighbors if we have masked too many samples
+                N_neighbors = mini_clf.n_samples_fit_
 
             neigh_dist, neigh_ind = mini_clf.kneighbors(
                 input_sentence_vectors, n_neighbors=N_neighbors, return_distance=True
