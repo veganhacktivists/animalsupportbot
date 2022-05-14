@@ -455,7 +455,9 @@ if __name__ == "__main__":
         while True:
             test_input = input("Enter test sentence: ")
             num_n = int(input("Num neighbours with vote: "))
-            output = argm.match_text_persentence(test_input, N_neighbors=num_n)
+            threshold = float(input("Threshold: "))
+            certain_threshold = float(input("Certain threshold: "))
+            output = argm.match_text_persentence(test_input, N_neighbors=num_n, threshold=threshold, certain_threshold=certain_threshold)
 
             # Replacing the newline characters to make printing a little nicer
             for o in output:
