@@ -21,6 +21,18 @@ from argmatcher import ArgMatcher
 from response_templates import END_TEMPLATE, FAILURE_COMMENT, FAILURE_PM
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--run-once",
+        help="Run only once, checking mentions",
+        action="store_true",
+        default=False,
+    )
+    args = parser.parse_args()
+    return args
+
+
 def load_config_yaml(file):
     with open(file) as fp:
         config = yaml.safe_load(fp)
@@ -372,6 +384,17 @@ class MentionsBot:
                 )
                 time.sleep(timeout_retry)
 
+    def run_once(self, check_replied=False):
+        """
+        Run the bot once, checking all new mentions
+        """
+        if check_replied:
+            print("Checking previous mentions to see if we have replied already...")
+            self.clear_already_replied()
+
+        self.reply_mentions()
+
+
     @staticmethod
     def remove_usernames(text):
         """
@@ -390,6 +413,7 @@ class MentionsBot:
 
 
 if __name__ == "__main__":
+    args = parse_args()
     config = load_config_yaml("./config.yaml")
     pprint(config)
 
@@ -407,4 +431,7 @@ if __name__ == "__main__":
         db,
     )
 
-    mb.run(refresh_rate=refresh_rate)
+    if args.run_once:
+        mb.run_once()
+    else:
+        mb.run(refresh_rate=refresh_rate)
