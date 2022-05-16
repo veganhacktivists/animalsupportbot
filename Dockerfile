@@ -10,11 +10,11 @@ RUN pip3 install -r requirements.txt
 # Build preload dicts
 RUN python3 argmatcher.py
 
-# Grab database and config from cloud storage
+# Grab database and config (log_db.json, config.yaml)
 # TODO
 
 # Run redditbot
 # CMD [ "python3", "redditbot.py", "--run-once"]
 
-# Upload database to cloud storage
+# Copy out database (log_db.json)
 # TODO
