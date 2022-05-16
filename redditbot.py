@@ -29,6 +29,12 @@ def parse_args():
         action="store_true",
         default=False,
     )
+    parser.add_argument(
+        "--check-replied",
+        help="Check if we have replied already first, only necessary once",
+        action="store_true",
+        default=False
+    )
     args = parser.parse_args()
     return args
 
@@ -432,6 +438,6 @@ if __name__ == "__main__":
     )
 
     if args.run_once:
-        mb.run_once()
+        mb.run_once(check_replied=args.check_replied)
     else:
-        mb.run(refresh_rate=refresh_rate)
+        mb.run(refresh_rate=refresh_rate, check_replied=args.check_replied)
