@@ -358,7 +358,6 @@ class MentionsBot:
                         for response in formatted_responses:
                             try:
                                 reply = parent.reply(response)
-                                print(response)
                                 reply_info[
                                     "outcome"
                                 ] = "Replied with matched argument(s)"
@@ -424,6 +423,7 @@ class MentionsBot:
             self.clear_already_replied()
 
         self.reply_mentions(limit=limit)
+        print("Successfully checked and/or replied to mentions, exiting successfully")
 
     @staticmethod
     def remove_usernames(text):
