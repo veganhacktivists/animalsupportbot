@@ -10,11 +10,6 @@ RUN pip3 install -r requirements.txt
 # Build preload dicts
 RUN python3 argmatcher.py
 
-# Grab database and config (log_db.json, config.yaml)
-# TODO
-
 # Run redditbot
-# CMD [ "python3", "redditbot.py", "--run-once"]
-
-# Copy out database (log_db.json)
-# TODO
+# Expects log_db.json and config.yaml to be in /asb_files/
+CMD [ "python3", "redditbot.py", "--run-once", "--log-db",  "/asb_files/log_db.json", "--config", "/asb_files/config.yaml" ] 
