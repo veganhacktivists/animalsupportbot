@@ -33,9 +33,34 @@ def parse_args():
         "--check-replied",
         help="Check if we have replied already first, only necessary once",
         action="store_true",
-        default=False
+        default=False,
+    )
+    parser.add_argument(
+        "--limit",
+        help="Maximum number of mentions to check (default=-1, unlimited)",
+        type=int,
+        default=-1,
+    )
+    parser.add_argument(
+        "--config",
+        help="Config file path (default: ./config.yaml)",
+        type=str,
+        default="./config.yaml",
+    )
+    parser.add_argument(
+        "--log-db",
+        help="Log db path (default: ./lob_db.json",
+        type=str,
+        default="./log_db.json",
     )
     args = parser.parse_args()
+
+    if args.limit <= 0:
+        args.limit = None
+
+    assert os.path.isfile(args.config)
+    assert os.path.isfile(args.log_db)
+
     return args
 
 
@@ -101,11 +126,11 @@ class MentionsBot:
         """
         Returns a list of all parent and mention ids found in the log DB
         """
-        replied = []
+        replied = set()
         for entry in db.all():
-            replied.append(entry["mention_id"])
+            replied.add(entry["mention_id"])
             if "parent_id" in entry:
-                replied.append(entry["parent_id"])
+                replied.add(entry["parent_id"])
         return replied
 
     def clear_already_replied(self):
@@ -113,7 +138,7 @@ class MentionsBot:
         Go through mentions manually to tick off if we have already replied
         """
         for mention in self.inbox.mentions(limit=None):
-            if mention not in self.replied:
+            if mention.id not in self.replied:
                 if isinstance(mention, Comment):
                     parent = mention.parent()
                     reply_info = {
@@ -142,8 +167,8 @@ class MentionsBot:
                     if replies:
                         reply_authors = [r.author for r in replies]
                         if "animalsupportbot" in reply_authors:
-                            self.replied.append(mention)
-                            self.replied.append(parent)
+                            self.replied.add(mention.id)
+                            self.replied.add(parent.id)
                             self.db.insert(reply_info)
 
     def format_response(self, resps):
@@ -218,7 +243,7 @@ class MentionsBot:
                 ] = "Mention not in whitelisted subreddit: {}".format(
                     mention.subreddit.display_name.lower()
                 )
-                self.replied.append(mention)
+                self.replied.add(mention.id)
                 self.db.insert(reply_info)
                 continue
 
@@ -226,12 +251,12 @@ class MentionsBot:
             # TODO: currently irrelevant as whitelist exists, enable this if whitelist is not enabled
             if mention.subreddit.display_name.lower() in self.blacklisted_subreddits:
                 reply_info["outcome"] = "Blacklisted Subreddit"
-                self.replied.append(mention)
+                self.replied.add(mention.id)
                 self.db.insert(reply_info)
                 continue
 
             # Proceed if mention has not been dealt with
-            if mention not in self.replied:
+            if mention.id not in self.replied:
                 if isinstance(mention, Comment):
                     parent = mention.parent()
                     reply_info["parent_id"] = parent.id
@@ -240,9 +265,9 @@ class MentionsBot:
                     )
 
                     # Check if parent has been handled (in case of multiple mentions)
-                    if parent in self.replied:
+                    if parent.id in self.replied:
                         reply_info["outcome"] = "Parent already replied to"
-                        self.replied.append(mention)
+                        self.replied.add(mention.id)
                         self.db.insert(reply_info)
                         continue
 
@@ -358,11 +383,11 @@ class MentionsBot:
                         reply_info["outcome"] = "Failed to find any matched arguments"
 
                     # Add both the mention and the parent to the replied list
-                    self.replied.append(mention)
-                    self.replied.append(parent)
+                    self.replied.add(mention.id)
+                    self.replied.add(parent.id)
                     self.db.insert(reply_info)
 
-    def run(self, refresh_rate=600, timeout_retry=600, check_replied=True):
+    def run(self, refresh_rate=600, timeout_retry=600, check_replied=True, limit=None):
         """
         Run the bot, checking for mentions every refresh_rate seconds
         In case of timeout, waits for timeout_retry seconds
@@ -375,7 +400,7 @@ class MentionsBot:
 
         while True:
             try:
-                self.reply_mentions()
+                self.reply_mentions(limit=limit)
                 print(
                     "{}\tReplied to mentions, sleeping for {} seconds...".format(
                         time.ctime(), refresh_rate
@@ -390,7 +415,7 @@ class MentionsBot:
                 )
                 time.sleep(timeout_retry)
 
-    def run_once(self, check_replied=False):
+    def run_once(self, check_replied=False, limit=None):
         """
         Run the bot once, checking all new mentions
         """
@@ -398,8 +423,7 @@ class MentionsBot:
             print("Checking previous mentions to see if we have replied already...")
             self.clear_already_replied()
 
-        self.reply_mentions()
-
+        self.reply_mentions(limit=limit)
 
     @staticmethod
     def remove_usernames(text):
@@ -420,7 +444,7 @@ class MentionsBot:
 
 if __name__ == "__main__":
     args = parse_args()
-    config = load_config_yaml("./config.yaml")
+    config = load_config_yaml(args.config)
     pprint(config)
 
     refresh_rate = int(config["refresh_rate"])
@@ -428,7 +452,7 @@ if __name__ == "__main__":
     nlp = spacy.load("en_core_web_lg")
     nlp.add_pipe("universal_sentence_encoder", config={"model_name": "en_use_lg"})
 
-    db = TinyDB("./log_db.json")
+    db = TinyDB(args.log_db)
 
     argm = ArgMatcher(nlp, None, None, preload=True)
     mb = MentionsBot(
@@ -438,6 +462,10 @@ if __name__ == "__main__":
     )
 
     if args.run_once:
-        mb.run_once(check_replied=args.check_replied)
+        mb.run_once(check_replied=args.check_replied, limit=args.limit)
     else:
-        mb.run(refresh_rate=refresh_rate, check_replied=args.check_replied)
+        mb.run(
+            refresh_rate=refresh_rate,
+            check_replied=args.check_replied,
+            limit=args.limit,
+        )
