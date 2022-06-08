@@ -171,9 +171,30 @@ class MentionsBot:
                             self.replied.add(parent.id)
                             self.db.insert(reply_info)
 
-    def format_response(self, resps):
+    def format_responses(self, resps, hint_resps=[]):
         """
         Formatting responses given from the argument matcher
+
+        Takes in a list of responses, and then makes individual replies to myths.
+        The responses have the following features:
+            - Collate all passages from the input text that match to the same arg together
+            - For all matched arguments:
+                - If a hint was present and matched, state that it was hinted
+                - Give highest similarity of arg with any sentence in comment
+            - For all failed matches:
+                - State arg and sentence with highest similarity
+                - If a hint was present and not matched, state this, along with sim value                
+            - Show similarity as a "percentage match" with arg
+
+        Args:
+            resps: list of responses as output by argmatcher (using comment text)
+                - For format of resps, see ArgMatcher.match_text_persentence()
+            hint_resps: list of responses as output by argmatcher (using hint text)
+
+        Returns:
+            replies: list of strings, reply texts that we want to send, each in markdown format
+                - Splits multiple matches into separate replies
+                - len determined by number of replies
         """
         args = OrderedDict({})
         for r in resps:
@@ -187,15 +208,15 @@ class MentionsBot:
                 args[arg] = {
                     "passage": passage,
                     "quotes": [inp],
-                    "sim": sim,
+                    "sim": [sim],
                     "link": link,
                 }
             else:
                 args[arg]["quotes"].append(inp)
-                if args[arg]["sim"] < sim:
+                if max(args[arg]["sim"]) < sim:
                     # replace the passage if this sentence is better matched
-                    args[arg]["sim"] = sim
                     args[arg]["passage"] = passage
+                args[arg]["sim"].append(sim)
 
         replies = []
         for i, arg in enumerate(args):
@@ -345,6 +366,8 @@ class MentionsBot:
                                         continue
                                     else:
                                         resps.append(r)
+                        else:
+                            hint_resps = []
 
                     else:
                         resps = []
@@ -352,7 +375,7 @@ class MentionsBot:
                     reply_info["responses"] = resps
 
                     if resps:  # Found arg match(es)
-                        formatted_responses = self.format_response(resps)
+                        formatted_responses = self.format_responses(resps, hint_resps)
                         reply_info["full_reply"] = formatted_responses
 
                         for response in formatted_responses:

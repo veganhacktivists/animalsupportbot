@@ -11,6 +11,12 @@ Learn more at **[WatchDominion](https://watchdominion.org/), [Vegan Bootcamp](ht
 *If you would like to contribute to the bot, please take a look at the GitHub repo: [veganhacktivists/animalsupportbot](https://github.com/veganhacktivists/animalsupportbot)* \n\n
 """
 
+# Hint info template
+## Contains 1 formattable field
+HINT_TEMPLATE = """
+The bot was hinted towards the following argument(s): {}
+"""
+
 # Respond to mention with this comment when bot fails
 ## No forrmattable fields
 FAILURE_COMMENT = """

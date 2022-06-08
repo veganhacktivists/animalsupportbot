@@ -279,14 +279,17 @@ class ArgMatcher:
         Returns:
             list of dicts with the following info:
                 {
-                    'input_sentence': Sentence from text,
-                    'matched_argument': The argument input_sentence was matched to,
-                    'matched_text': The nearest neighbour text which input_sentence matched to,
+                    'input_sentence': (str) Sentence from text,
+                    'matched_argument': (str) The argument input_sentence was matched to,
+                    'enable_resp': (bool), whether response is enabled,
+                    'matched_text': (str) The nearest neighbour text which input_sentence matched to,
                     'matched_arglabel': The argument label (int) of matched_argument,
-                    'similarity': similarity score of matched_text,
-                    'reply_text': The most similar passage in the response text
-                    'similarities': The similarities of the n_neighbors,
-                    'neighbor_texts': The texts of the most similar n_neighbors
+                    'similarity': (float) similarity score of matched_text,
+                    'reply_text': (str) The most similar passage in the response text
+                    'similarities': List[float] The similarities of the n_neighbors,
+                    'neighbor_texts': List[str] The texts of the most similar n_neighbors,
+                    'certain_threshold': (float) the certain threshold used,
+                    'link': (str) Any associated URL to link to
                 }
         """
         text = str(self.prefilter(text))
