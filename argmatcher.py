@@ -290,6 +290,9 @@ class ArgMatcher:
                 }
         """
         text = str(self.prefilter(text))
+        if not text:
+            return []
+
         t = self.nlp(text)
         input_sentences = []
         input_vector = t.vector
