@@ -424,6 +424,7 @@ class MentionsBot:
             self.clear_already_replied()
 
         self.reply_mentions(limit=limit)
+        print("Successfully checked and/or replied to mentions, exiting successfully")
 
     @staticmethod
     def remove_usernames(text):
