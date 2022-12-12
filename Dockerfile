@@ -12,4 +12,4 @@ RUN python3 argmatcher.py
 
 # Run redditbot
 # Expects log_db.json and config.yaml to be in /asb_files/
-CMD [ "python3", "redditbot.py", "--run-once", "--log-db",  "/asb_files/log_db.json", "--config", "/asb_files/config.yaml" ] 
+CMD [ "python3", "redditbot.py", "--log-db",  "/asb_files/log_db.json", "--config", "/asb_files/config.yaml" ] 
