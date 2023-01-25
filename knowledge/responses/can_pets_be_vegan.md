@@ -14,8 +14,6 @@ Finally, I'd like to cite some studies that support supplemented vegan cat and d
 
 ### References
 
-Gray, C. M., Sellon, R. K., & Freeman, L. M. (2004). Nutritional adequacy of two vegan diets for cats. Journal of the American Veterinary Medical Association, 225(11), 1670–1675. https://doi.org/10.2460/javma.2004.225.1670
-
 Knight, A., & Leitsberger, M. (2016). Vegetarian versus Meat-Based Diets for Companion Animals. Animals, 6(9), 57. https://doi.org/10.3390/ani6090057
 
 Vegan animal diets: facts and myths. (n.d.). The Vegan Society. Retrieved March 25, 2021, from https://www.vegansociety.com/whats-new/blog/vegan-animal-diets-facts-and-myths
