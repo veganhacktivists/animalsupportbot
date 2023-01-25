@@ -14,19 +14,10 @@ Finally, I'd like to cite some studies that support supplemented vegan cat and d
 
 ### References
 
-Amì pet food → Amì Cat. (n.d.). ww.amipetfood.com. Retrieved March 25, 2021, from https://www.amipetfood.com/en/products/products-for-cats/amicat
-
 Gray, C. M., Sellon, R. K., & Freeman, L. M. (2004). Nutritional adequacy of two vegan diets for cats. Journal of the American Veterinary Medical Association, 225(11), 1670–1675. https://doi.org/10.2460/javma.2004.225.1670
 
-Kanakubo, K., Fascetti, A. J., & Larsen, J. A. (2015). Assessment of protein and amino acid concentrations and labeling adequacy of commercial vegetarian diets formulated for dogs and cats. Journal of the American Veterinary Medical Association, 247(4), 385–392. https://doi.org/10.2460/javma.247.4.385
-
 Knight, A., & Leitsberger, M. (2016). Vegetarian versus Meat-Based Diets for Companion Animals. Animals, 6(9), 57. https://doi.org/10.3390/ani6090057
-
-V-dog Vegan Dog Food | Healthy Dog Treats | Vegan Dog Chews. (n.d.). V-Dog. https://v-dog.com
 
 Vegan animal diets: facts and myths. (n.d.). The Vegan Society. Retrieved March 25, 2021, from https://www.vegansociety.com/whats-new/blog/vegan-animal-diets-facts-and-myths
 
 Wakefield, L. A., Shofer, F. S., & Michel, K. E. (2006). Evaluation of cats fed vegetarian diets and attitudes of their caregivers. Journal of the American Veterinary Medical Association, 229(1), 70–73. https://doi.org/10.2460/javma.229.1.70
-
-Wild Earth - As seen on Shark Tank - Dog Food. (n.d.). Wild Earth. Retrieved March 26, 2021, from https://wildearth.com
-‌
