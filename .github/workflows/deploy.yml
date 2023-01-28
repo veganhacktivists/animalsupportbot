@@ -1,0 +1,34 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  deploy:
+    name: Deploy Bot
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    env:
+      DEPLOY_HOST: 206.189.96.198
+      DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+      DEPLOY_USER: deploy
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+      - name: build docker image
+        run: docker build . -t animalsupportbot:${GITHUB_REF_NAME}
+      - name: write image to tar file
+        run: docker save -o animalsupportbot.tar animalsupportbot:${GITHUB_REF_NAME}
+      - name: upload image to docker droplet
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< "$DEPLOY_PRIVATE_KEY"
+          scp -o StrictHostKeyChecking=no animalsupportbot.tar ${DEPLOY_USER}@${DEPLOY_HOST}:/tmp
+      - name: deploy animalsupportbot to docker droplet
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< "$DEPLOY_PRIVATE_KEY"
+          ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} -C "docker stop animalsupportbot || true && cd /tmp && docker load --input /tmp/animalsupportbot.tar && docker run --rm --name animalsupportbot -d animalsupportbot:${GITHUB_REF_NAME} && rm /tmp/animalsupportbot.tar"
