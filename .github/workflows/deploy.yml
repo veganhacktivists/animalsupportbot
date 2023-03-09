@@ -31,4 +31,4 @@ jobs:
         run: |
           eval `ssh-agent -s`
           ssh-add - <<< "$DEPLOY_PRIVATE_KEY"
-          ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} -C "docker stop animalsupportbot || true && cd /tmp && docker load --input /tmp/animalsupportbot.tar && docker run --rm -v '/asb_files':'/asb_files' --name animalsupportbot -d animalsupportbot:${GITHUB_REF_NAME} && rm /tmp/animalsupportbot.tar"
+          ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} -C "docker stop animalsupportbot || true && cd /tmp && docker load --input /tmp/animalsupportbot.tar && docker run -v '$HOME/vh-animalsupportbot':'/asb_files' --name animalsupportbot -d animalsupportbot:${GITHUB_REF_NAME} && rm /tmp/animalsupportbot.tar"
